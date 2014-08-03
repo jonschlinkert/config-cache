@@ -171,15 +171,11 @@ Return methods on `this.cache` or the given `obj`.
 
 ```js
 config.methods('foo')
-// => false
-
-config.enable('foo')
-config.methods('foo')
-// => true
+//=> ['set', 'get', 'enable', ...]
 ```
 
 * `obj` {Object}  
-* `return` {Boolean} 
+* `return` {Array} 
 
 
 ### .enabled (key)
@@ -294,6 +290,11 @@ config
  
 * `return` {Cache} for chaining 
 
+
+## Data
+
+> Methods for reading data files, processing template strings and
+extending the `cache.data` object.
 
 ### .process
 

@@ -307,16 +307,12 @@ Cache.prototype.constant = function(key, value, namespace) {
  *
  * ```js
  * config.methods('foo')
- * // => false
- *
- * config.enable('foo')
- * config.methods('foo')
- * // => true
+ * //=> ['set', 'get', 'enable', ...]
  * ```
  *
  * @method methods
  * @param {Object} `obj`
- * @return {Boolean}
+ * @return {Array}
  * @api public
  */
 
@@ -553,6 +549,11 @@ Cache.prototype.merge = function() {
 
 
 /**
+ * # Data
+ *
+ * > Methods for reading data files, processing template strings and
+ * extending the `cache.data` object.
+ *
  * ## .process
  *
  * Use [expander] to recursively expand template strings into
