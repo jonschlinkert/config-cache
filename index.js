@@ -492,6 +492,18 @@ Cache.prototype.union = function(key) {
  *   .extend({fez: 'bang'});
  * ```
  *
+ * Or define the property to extend:
+ *
+ * ```js
+ * config
+ *   // extend `cache.a`
+ *   .extend('a', {foo: 'bar'}, {baz: 'quux'})
+ *   // extend `cache.b`
+ *   .extend('b', {fez: 'bang'})
+ *   // extend `cache.a.b.c`
+ *   .extend('a.b.c', {fez: 'bang'});
+ * ```
+ *
  * @chainable
  * @method extend
  * @return {Cache} for chaining
@@ -501,9 +513,8 @@ Cache.prototype.union = function(key) {
 Cache.prototype.extend = function() {
   var args = [].slice.call(arguments);
   if (typeof args[0] === 'string') {
-    var name = args[0];
-    this.cache[name] = this.cache[name] || {};
-    _.extend.apply(_, [this.cache[name]].concat(_.rest(args)));
+    var rest = _.extend.apply(_, [].concat(_.rest(args)));
+    getobject.set(this.cache, args[0], rest);
     this.emit('extend');
     return this;
   }
@@ -536,9 +547,8 @@ Cache.prototype.extend = function() {
 Cache.prototype.merge = function() {
   var args = [].slice.call(arguments);
   if (typeof args[0] === 'string') {
-    var name = args[0];
-    this.cache[name] = this.cache[name] || {};
-    _.merge.apply(_, [this.cache[name]].concat(_.rest(args)));
+    var rest = _.merge.apply(_, [].concat(_.rest(args)));
+    getobject.set(this.cache, args[0], rest);
     this.emit('merge');
     return this;
   }
@@ -633,7 +643,14 @@ Cache.prototype.flattenData = function(data, name) {
 
 Cache.prototype.extendData = function() {
   var args = [].slice.call(arguments);
-  this.extend('data', args[0]);
+  if (typeof args[0] === 'string') {
+    var rest = _.extend.apply(_, [].concat(_.rest(args)));
+    getobject.set(this.cache.data, args[0], rest);
+    this.emit('extendData');
+    return this;
+  }
+  _.extend.apply(_, [this.cache.data].concat(args));
+  this.emit('extendData');
   return this;
 };
 
@@ -725,7 +742,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
  * @api public
  */
 
-Cache.prototype.data = function(data) {
+Cache.prototype.data = function() {
   var args = [].slice.call(arguments);
 
   if (!args.length) {

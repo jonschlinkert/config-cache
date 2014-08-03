@@ -9,14 +9,16 @@
 
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+
 
 describe('config data', function() {
+  var config = new Config();
   beforeEach(function() {
     config.clear();
   });
 
   describe('.extendData()', function() {
+    var config = new Config();
     it('should extend the `data` object.', function() {
       config
         .extendData({x: 'x', y: 'y', z: 'z'})
@@ -25,6 +27,7 @@ describe('config data', function() {
       config.get('data').should.have.property('a');
       config.get('data').should.have.property('b');
       config.get('data').should.have.property('c');
+
       config.get('data').should.have.property('x');
       config.get('data').should.have.property('y');
       config.get('data').should.have.property('z');
@@ -32,6 +35,7 @@ describe('config data', function() {
   });
 
   describe('.flattenData()', function() {
+    var config = new Config();
     it('should merge the value of a nested `data` property onto the root of the given object.', function() {
       var root = config.flattenData({data: {x: 'x'}, y: 'y', z: 'z'});
       root.should.have.property('x');
@@ -51,6 +55,7 @@ describe('config data', function() {
   });
 
   describe('.plasma()', function() {
+    var config = new Config();
     it('should read JSON files and return an object.', function() {
       var data = config.plasma('package.json');
       data.name.should.equal('config-cache');
@@ -85,6 +90,7 @@ describe('config data', function() {
   });
 
   describe('.data()', function() {
+    var config = new Config();
     it('should set properties on the `data` object.', function() {
       config.set('data.foo', 'bar');
       config.get('data').foo.should.equal('bar');
@@ -96,16 +102,15 @@ describe('config data', function() {
       config.get('data.name').should.equal('config-cache');
     });
 
-    // it('should read files and merge data onto `cache.data`', function() {
-    //   config.data({xyz: 'abc'});
-    //   config.get('data.xyz').should.equal('abc');
-    // });
+    it('should read files and merge data onto `cache.data`', function() {
+      config.data({xyz: 'abc'});
+      config.get('data.xyz').should.equal('abc');
+    });
 
-    // it('should read files and merge data onto `cache.data`', function() {
-    //   config.data([{aaa: 'bbb', ccc: 'ddd'}]);
-    //   config.get('data.aaa').should.equal('bbb');
-    //   config.get('data.ccc').should.equal('ddd');
-    // });
+    it('should read files and merge data onto `cache.data`', function() {
+      config.data([{aaa: 'bbb', ccc: 'ddd'}]);
+      config.get('data.aaa').should.equal('bbb');
+      config.get('data.ccc').should.equal('ddd');
+    });
   });
-
 });

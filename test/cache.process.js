@@ -42,20 +42,20 @@ describe('config process', function () {
 
     describe('when functions are defined on the config', function() {
       it('should used them on config templates', function() {
-        config.data({
+        config.set({
           upper: function (str) {
             return str.toUpperCase();
           }
         });
 
-        config.data({fez: 'bang', pop: 'boom-pow!'});
-        config.data({whistle: '<%= upper(fez) %>-<%= upper(pop) %>'});
-        config.get('data.whistle').should.equal('<%= upper(fez) %>-<%= upper(pop) %>');
+        config.set({fez: 'bang', pop: 'boom-pow!'});
+        config.set({whistle: '<%= upper(fez) %>-<%= upper(pop) %>'});
+        config.get('whistle').should.equal('<%= upper(fez) %>-<%= upper(pop) %>');
 
-        var a = config.process(config.get('data.whistle'), config.get('data'));
+        var a = config.process(config.get('whistle'), config.get());
         a.should.equal('BANG-BOOM-POW!');
 
-        var b = config.process(config.get('data'), config.get('data'));
+        var b = config.process(config.get(), config.get());
         b.whistle.should.equal('BANG-BOOM-POW!');
       });
     });
