@@ -1,7 +1,7 @@
 /*!
  * config-cache <https://github.com/jonschlinkert/config-cache>
  *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.
  * Licensed under the MIT license.
  */
 
@@ -23,20 +23,21 @@ describe('Cache', function () {
     });
   });
 
+  describe('keys:', function () {
+    var config = new Cache();
+    it('should return the keys of properties on the cache.', function () {
+      config.set('a', 1);
+      config.set('b', 2);
+      config.set('c', 3);
+      config.keys.should.eql(['data', 'a', 'b', 'c']);
+    });
+  });
+
   describe('get/set:', function () {
     var config = new Cache();
 
     afterEach(function() {
       config.clear();
-    });
-
-    describe('keys:', function () {
-      it('should set a new property with the given value', function () {
-        config.set('a', 1);
-        config.set('b', 2);
-        config.set('c', 3);
-        config.keys().should.eql(['data', 'a', 'b', 'c']);
-      });
     });
 
     describe('set() - add:', function () {

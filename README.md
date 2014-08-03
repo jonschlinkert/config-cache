@@ -1,6 +1,6 @@
 # config-cache [![NPM version](https://badge.fury.io/js/config-cache.png)](http://badge.fury.io/js/config-cache)
 
-> Simple, general purpose JavaScript cache methods.
+> General purpose JavaScript cache methods.
 
 ## Install
 #### Install with [npm](npmjs.org):
@@ -26,17 +26,40 @@ var config = new Cache();
 * `obj` {Object}: Optionally pass an object to initialize `this.cache`.   
 
 
+### .keys
+
+Return the keys on `this.cache`.
+
+```js
+config.keys();
+```
+ 
+* `return` {Boolean} 
+
+
 ### .hasOwn
+
+Return true if `key` is an own, enumerable property
+of `this.cache` or the given `obj`.
 
 ```js
 config.hasOwn([key]);
 ```
 
-Return true if `key` is an own, enumerable property
-of `this.cache` or the given `obj`.
-
 * `key` {String} 
 * `obj` {Object}: Optionally pass an object to check.  
+* `return` {Boolean} 
+
+
+### .clone
+
+Clone the given `obj` or `cache`.
+
+```js
+config.clone();
+```
+
+* `obj` {Object}: Optionally pass an object to clone.  
 * `return` {Boolean} 
 
 
@@ -288,43 +311,6 @@ config.process({a: '<%= b %>', b: 'c'});
 * `opts` {*}: Options to pass to Lo-Dash `_.template`.   
 
 
-### Clearing the cache
-
-> Methods for clearing the cache, removing or reseting specific
-values on the cache.
-
-
-### .omit
-
-Omit properties and their from the `cache`.
-
-**Example:**
-
-```js
-config
-  .omit('foo');
-  .omit('foo', 'bar');
-  .omit(['foo']);
-  .omit(['foo', 'bar']);
-```
- 
-* `return` {Cache} for chaining 
-
-
-### .clear
-
-Remove `key` from the cache, or if no value is
-specified the entire config is reset.
-
-**Example:**
-
-```js
-config.clear();
-```
- 
-* `return` {Cache} for chaining 
-
-
 ### .extendData
 
 Extend the `cache.data` object with the given data. This
@@ -403,14 +389,55 @@ console.log(config.cache);
 
 * `data` {Object} 
 * `options` {Object}: Options to pass to [plasma].  
-* `return` {Cache} for chaining
+* `return` {Cache} for chaining 
+
+
+## Clearing the cache
+
+> Methods for clearing the cache, removing or reseting specific
+values on the cache.
+
+
+### .omit
+
+Omit properties and their from the `cache`.
+
+**Example:**
+
+```js
+config
+  .omit('foo');
+  .omit('foo', 'bar');
+  .omit(['foo']);
+  .omit(['foo', 'bar']);
+```
+ 
+* `return` {Cache} for chaining 
+
+
+### .clear
+
+Remove `key` from the cache, or if no value is
+specified the entire config is reset.
+
+**Example:**
+
+```js
+config.clear();
+```
 
 ## Author
-
+ 
 **Jon Schlinkert**
  
 + [github/jonschlinkert](https://github.com/jonschlinkert)
 + [twitter/jonschlinkert](http://twitter.com/jonschlinkert) 
+ 
+**Brian Woodward**
+ 
++ [github/doowb](https://github.com/doowb)
++ [twitter/doowb](http://twitter.com/doowb) 
+
 
 ## License
 Copyright (c) 2014 Jon Schlinkert, contributors.  

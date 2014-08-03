@@ -1,7 +1,7 @@
 /*!
  * config-cache <https://github.com/jonschlinkert/config-cache>
  *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.
  * Licensed under the MIT license.
  */
 
@@ -30,7 +30,7 @@ var Events = require('./events');
  * @api public
  */
 
-var Cache = module.exports = function Cache(obj) {
+var Cache = module.exports = function(obj) {
   Events .call(this);
   this.cache = obj || {};
   this.cache.data = {};
@@ -53,20 +53,23 @@ util.inherits(Cache, Events);
  * @api public
  */
 
-Cache.prototype.keys = function() {
-  return Object.keys(this.cache);
-};
+Object.defineProperty(Cache.prototype, 'keys', {
+  enumerable: true,
+  get: function () {
+    return Object.keys(this.cache);
+  }
+});
 
 
 /**
  * ## .hasOwn
  *
+ * Return true if `key` is an own, enumerable property
+ * of `this.cache` or the given `obj`.
+ *
  * ```js
  * config.hasOwn([key]);
  * ```
- *
- * Return true if `key` is an own, enumerable property
- * of `this.cache` or the given `obj`.
  *
  * @method hasOwn
  * @param  {String} `key`
@@ -77,6 +80,26 @@ Cache.prototype.keys = function() {
 
 Cache.prototype.hasOwn = function(key, obj) {
   return {}.hasOwnProperty.call(obj || this.cache, key);
+};
+
+
+/**
+ * ## .clone
+ *
+ * Clone the given `obj` or `cache`.
+ *
+ * ```js
+ * config.clone();
+ * ```
+ *
+ * @method clone
+ * @param  {Object} `obj` Optionally pass an object to clone.
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.clone = function(obj) {
+  return _.cloneDeep(obj || this.cache);
 };
 
 
@@ -154,7 +177,34 @@ Cache.prototype.visit = function(obj, fn) {
  * config.set(key, value);
  * ```
  *
- * {%= docs("api-set") %}
+ * If `expand` is defined as true, the value will be set using [expander].
+ *
+ * **Examples:**
+ *
+ * ```js
+ * // as a key-value pair
+ * config.set('a', {b: 'c'});
+ *
+ * // or as an object
+ * config.set({a: {b: 'c'}});
+ *
+ * // chaining is possible
+ * config
+ *   .set({a: {b: 'c'}})
+ *   .set('d', 'e');
+ * ```
+ *
+ * Expand template strings with expander:
+ *
+ * ```js
+ * config.set('a', {b: '${c}', c: 'd'}, true);
+ * ```
+ *
+ * Visit the [expander] docs for more info.
+ *
+ *
+ * [expander]: https://github.com/tkellen/expander
+ * [getobject]: https://github.com/cowboy/node-getobject
  *
  * @method set
  * @param {String} `key`
@@ -537,71 +587,6 @@ Cache.prototype.process = function(lookup, context) {
 
 
 /**
- * ## Clearing the cache
- *
- * > Methods for clearing the cache, removing or reseting specific
- * values on the cache.
- *
- *
- * ## .omit
- *
- * Omit properties and their from the `cache`.
- *
- * **Example:**
- *
- * ```js
- * config
- *   .omit('foo');
- *   .omit('foo', 'bar');
- *   .omit(['foo']);
- *   .omit(['foo', 'bar']);
- * ```
- *
- * @chainable
- * @method omit
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.omit = function() {
-  var args = [].slice.call(arguments);
-  this.cache = _.omit.apply(_, [this.cache].concat(args));
-  this.emit('omit');
-  return this;
-};
-
-
-/**
- * ## .clear
- *
- * Remove `key` from the cache, or if no value is
- * specified the entire config is reset.
- *
- * **Example:**
- *
- * ```js
- * config.clear();
- * ```
- *
- * @chainable
- * @method clear
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.clear = function(key) {
-  if (key) {
-    this.emit('clear', key);
-    delete this.cache[key];
-  } else {
-    this.cache = {};
-    this.emit('clear');
-  }
-  return this;
-};
-
-
-/**
  * ## .flattenData
  *
  * If a `data` property is on the given `data` object
@@ -673,7 +658,7 @@ Cache.prototype.extendData = function() {
  * @api public
  */
 
-Cache.prototype.plasma = function(data) {
+Cache.prototype.plasma = function() {
   var args = [].slice.call(arguments);
   return plasma.apply(this, args);
 };
@@ -739,7 +724,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
  * @api public
  */
 
-Cache.prototype.data = function(data, options) {
+Cache.prototype.data = function(data) {
   var args = [].slice.call(arguments);
 
   if (!args.length) {
@@ -750,6 +735,69 @@ Cache.prototype.data = function(data, options) {
   obj = this.flattenData(obj);
   this.extendData(obj);
   return this;
+};
+
+
+/**
+ * # Clearing the cache
+ *
+ * > Methods for clearing the cache, removing or reseting specific
+ * values on the cache.
+ *
+ *
+ * ## .omit
+ *
+ * Omit properties and their from the `cache`.
+ *
+ * **Example:**
+ *
+ * ```js
+ * config
+ *   .omit('foo');
+ *   .omit('foo', 'bar');
+ *   .omit(['foo']);
+ *   .omit(['foo', 'bar']);
+ * ```
+ *
+ * @chainable
+ * @method omit
+ * @return {Cache} for chaining
+ * @api public
+ */
+
+Cache.prototype.omit = function() {
+  var args = [].slice.call(arguments);
+  this.cache = _.omit.apply(_, [this.cache].concat(args));
+  this.emit('omit');
+  return this;
+};
+
+
+/**
+ * ## .clear
+ *
+ * Remove `key` from the cache, or if no value is
+ * specified the entire config is reset.
+ *
+ * **Example:**
+ *
+ * ```js
+ * config.clear();
+ * ```
+ *
+ * @chainable
+ * @method clear
+ * @api public
+ */
+
+Cache.prototype.clear = function(key) {
+  if (key) {
+    this.emit('clear', key);
+    delete this.cache[key];
+  } else {
+    this.cache = {};
+    this.emit('clear');
+  }
 };
 
 

@@ -1,7 +1,7 @@
 /*!
  * config-cache <https://github.com/jonschlinkert/config-cache>
  *
- * Copyright (c) 2014 Jon Schlinkert, contributors.
+ * Copyright (c) 2014 Jon Schlinkert, Brian Woodward, contributors.
  * Licensed under the MIT license.
  */
 
