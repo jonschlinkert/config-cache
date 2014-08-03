@@ -1,0 +1,52 @@
+{
+  "name": "config-cache",
+  "description": "Simple, general purpose JavaScript cache methods.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/config-cache",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jonschlinkert/config-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/config-cache/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jonschlinkert/config-cache/blob/master/LICENSE-MIT"
+    }
+  ],
+  "keywords": [
+    "config",
+    "hash",
+    "object",
+    "store",
+    "data",
+    "cache"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "^4.0.4",
+    "verb": ">= 0.2.6",
+    "verb-tag-jscomments": ">= 0.1.4"
+  },
+  "dependencies": {
+    "eventemitter2": "^0.4.14",
+    "expander": "^0.3.3",
+    "getobject": "^0.1.0",
+    "lodash": "^2.4.1",
+    "namespace-data": "^0.1.0",
+    "plasma": "^0.4.0"
+  }
+}
