@@ -53,12 +53,9 @@ util.inherits(Cache, Events);
  * @api public
  */
 
-Object.defineProperty(Cache.prototype, 'keys', {
-  enumerable: true,
-  get: function () {
-    return Object.keys(this.cache);
-  }
-});
+Cache.prototype.keys = function() {
+  return Object.keys(this.cache);
+};
 
 
 /**

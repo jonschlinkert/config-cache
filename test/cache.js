@@ -23,13 +23,13 @@ describe('Cache', function () {
     });
   });
 
-  describe('keys:', function () {
+  describe('keys():', function () {
     var config = new Cache();
     it('should return the keys of properties on the cache.', function () {
       config.set('a', 1);
       config.set('b', 2);
       config.set('c', 3);
-      config.keys.should.eql(['data', 'a', 'b', 'c']);
+      config.keys().should.eql(['data', 'a', 'b', 'c']);
     });
   });
 
