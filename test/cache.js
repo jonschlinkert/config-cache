@@ -10,10 +10,7 @@
 var should = require('should');
 var Cache = require('..');
 
-
 describe('Cache', function () {
-  var config = new Cache();
-
   describe('constructor:', function () {
     it('when new Cache() is defined:', function () {
       var config = new Cache({
@@ -26,25 +23,44 @@ describe('Cache', function () {
     });
   });
 
-  describe('set() - add:', function () {
-    it('should set a new property with the given value', function () {
-      config.set('one', 1);
-      config.get('one').should.eql(1);
-    });
-  });
+  describe('get/set:', function () {
+    var config = new Cache();
 
-  describe('set() - update:', function () {
-    it('should update an existing property with the given value', function () {
-      config.set('one', 2);
-      config.get('one').should.eql(2);
+    afterEach(function() {
+      config.clear();
+    });
+
+    describe('keys:', function () {
+      it('should set a new property with the given value', function () {
+        config.set('a', 1);
+        config.set('b', 2);
+        config.set('c', 3);
+        config.keys().should.eql(['data', 'a', 'b', 'c']);
+      });
+    });
+
+    describe('set() - add:', function () {
+      it('should set a new property with the given value', function () {
+        config.set('one', 1);
+        config.get('one').should.eql(1);
+      });
+    });
+
+    describe('set() - update:', function () {
+      it('should update an existing property with the given value', function () {
+        config.set('one', 2);
+        config.get('one').should.eql(2);
+      });
+
+      it('should get the given property', function () {
+        config.set('a', 'b');
+        config.get('a').should.eql('b');
+      });
     });
   });
 
   describe('get():', function () {
-    it('should get the given property', function () {
-      config.get('one').should.eql(2);
-    });
-
+    var config = new Cache();
     var obj = {a: {b: {c: 1, d: '', e: null, f: undefined, 'g.h.i': 2}}};
     config.merge(obj);
 
@@ -71,7 +87,7 @@ describe('Cache', function () {
       (typeof config.get('a.b.f')).should.be.undefined;
     });
     it('literal backslash should escape period in property name.', function() {
-      config.get('a.b.g\\.h\\.i').should.eql(2);
+      config.get('a.b.g\\.h\\.i').should.equal(2);
     });
     it('should just return existing properties.', function() {
       config.get('a', true).should.eql(config.cache.a);
@@ -85,6 +101,8 @@ describe('Cache', function () {
   });
 
   describe('all:', function () {
+    var config = new Cache();
+
     it('should list the entire cache', function () {
       config.get().should.eql(config.cache);
     });

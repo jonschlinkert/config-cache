@@ -18,44 +18,64 @@ var Events = require('./events');
 
 
 /**
- * # Cache
- *
- * Initialize a new `Cache` with the given `obj`.
- *
- * **Example:**
+ * Initialize a new `Cache`
  *
  * ```js
- * var cache = new Cache();
+ * var config = new Cache();
  * ```
  *
  * @class Cache
- * @param {Object} `obj`
+ * @param {Object} `obj` Optionally pass an object to initialize `this.cache`.
  * @constructor
  * @api public
  */
 
-function Cache(cache) {
-  Events.call(this);
-  this.cache = cache || {};
+var Cache = module.exports = function Cache(obj) {
+  Events .call(this);
+  this.cache = obj || {};
   this.cache.data = {};
-}
+};
 
 util.inherits(Cache, Events);
 
 
 /**
- * ## .hasOwn
+ * ## .keys
  *
- * Return true if `key` is an own, enumerable property
- * of `this.cache` or the given `obj`.
+ * Return the keys on `this.cache`.
  *
- * @method `hasOwn`
- * @param  {String} `key`
+ * ```js
+ * config.keys();
+ * ```
+ *
+ * @method keys
  * @return {Boolean}
  * @api public
  */
 
-Cache.prototype.hasOwn = function hasOwn(key, obj) {
+Cache.prototype.keys = function() {
+  return Object.keys(this.cache);
+};
+
+
+/**
+ * ## .hasOwn
+ *
+ * ```js
+ * config.hasOwn([key]);
+ * ```
+ *
+ * Return true if `key` is an own, enumerable property
+ * of `this.cache` or the given `obj`.
+ *
+ * @method hasOwn
+ * @param  {String} `key`
+ * @param  {Object} `obj` Optionally pass an object to check.
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.hasOwn = function(key, obj) {
   return {}.hasOwnProperty.call(obj || this.cache, key);
 };
 
@@ -65,40 +85,57 @@ Cache.prototype.hasOwn = function hasOwn(key, obj) {
  *
  * Call `fn` on each property in `this.cache`.
  *
+ * ```js
+ * config.each(fn, obj);
+ * ```
+ *
+ * @method each
  * @param  {Function} `fn`
+ * @param  {Object} `obj` Optionally pass an object to iterate over.
+ * @return {Object} Resulting object.
  * @api public
  */
 
-Cache.prototype.each = function each(fn) {
-  for (var key in this.cache) {
+Cache.prototype.each = function(fn, obj) {
+  obj = obj || this.cache;
+  for (var key in obj) {
     if (this.hasOwn(key)) {
-      fn(key, this.cache[key]);
+      fn(key, obj[key]);
     }
   }
+  return obj;
 };
 
 
 /**
  * ## .visit
  *
- * Traverse each _own property_ of `this.cache` and recursively
- * call `fn` on child objects.
+ * Traverse each _own property_ of `this.cache` or the given object,
+ * recursively calling `fn` on child objects.
  *
- * @param  {Function} `fn`
+ * ```js
+ * config.visit(obj, fn);
+ * ```
+ *
+ * @method visit
+ * @param {Object|Function} `obj` Optionally pass an object.
+ * @param {Function} `fn`
  * @return {Object} Return the resulting object.
  * @api public
  */
 
-Cache.prototype.visit = function visit(fn) {
+Cache.prototype.visit = function(obj, fn) {
   var cloned = {};
-  for (var key in this.cache) {
-    if (this.hasOwn(key)) {
-      var child = this.cache[key];
-      fn.apply(this, [key, child]);
-
-      if (child != null
-          && typeOf(child) === 'object'
-          && !Array.isArray(child)) {
+  if (arguments.length === 1) {
+    fn = obj;
+    obj = this.cache;
+  }
+  obj = obj || this.cache;
+  for (var key in obj) {
+    if (this.hasOwn(key, obj)) {
+      var child = obj[key];
+      fn.call(this, key, child);
+      if (child != null && typeOf(child) === 'object') {
         child = this.visit(child, fn);
       }
       cloned[key] = child;
@@ -117,26 +154,26 @@ Cache.prototype.visit = function visit(fn) {
  * config.set(key, value);
  * ```
  *
- * {%= docs("set") %}
+ * {%= docs("api-set") %}
  *
- * @method `set`
+ * @method set
  * @param {String} `key`
  * @param {*} `value`
- * @param {Boolean} `resolve` Resolve template strings with [expander]
+ * @param {Boolean} `expand` Resolve template strings with [expander]
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.set = function set(key, value, resolve) {
+Cache.prototype.set = function(key, value, expand) {
   if (arguments.length === 1 && typeOf(key) === 'object') {
     this.extend(key);
     this.emit('set', key, value);
     return this;
   }
 
-  value = expand(this.cache, value);
-  if (resolve) {
-    expander.set(this.cache, key, value);
+  if (expand) {
+    value = this.process(value, this.cache);
+    this.set(key, value);
   } else {
     getobject.set(this.cache, key, value);
   }
@@ -167,7 +204,7 @@ Cache.prototype.set = function set(key, value, resolve) {
  * @api public
  */
 
-Cache.prototype.get = function get(key, create) {
+Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
   }
@@ -193,7 +230,7 @@ Cache.prototype.get = function get(key, create) {
  * @api public
  */
 
-Cache.prototype.constant = function constant(key, value, namespace) {
+Cache.prototype.constant = function(key, value, namespace) {
   var getter;
   if (typeof value !== 'function'){
     getter = function() {
@@ -216,7 +253,7 @@ Cache.prototype.constant = function constant(key, value, namespace) {
 /**
  * ## .methods (key)
  *
- * Check if `key` is methods (truthy).
+ * Return methods on `this.cache` or the given `obj`.
  *
  * ```js
  * config.methods('foo')
@@ -228,13 +265,14 @@ Cache.prototype.constant = function constant(key, value, namespace) {
  * ```
  *
  * @method methods
- * @param {String} `key`
+ * @param {Object} `obj`
  * @return {Boolean}
  * @api public
  */
 
-Cache.prototype.methods = function methods(context) {
-  return _.pick(context, _.methods(context));
+Cache.prototype.methods = function(obj) {
+  obj = obj || this.cache;
+  return _.pick(obj, _.methods(obj));
 };
 
 
@@ -258,7 +296,7 @@ Cache.prototype.methods = function methods(context) {
  * @api public
  */
 
-Cache.prototype.enabled = function enabled(key) {
+Cache.prototype.enabled = function(key) {
   return !!this.get(key);
 };
 
@@ -283,7 +321,7 @@ Cache.prototype.enabled = function enabled(key) {
  * @api public
  */
 
-Cache.prototype.disabled = function disabled(key) {
+Cache.prototype.disabled = function(key) {
   return !this.get(key);
 };
 
@@ -305,7 +343,7 @@ Cache.prototype.disabled = function disabled(key) {
  * @api public
  */
 
-Cache.prototype.enable = function enable(key) {
+Cache.prototype.enable = function(key) {
   this.emit('enable');
   return this.set(key, true);
 };
@@ -328,7 +366,7 @@ Cache.prototype.enable = function enable(key) {
  * @api public
  */
 
-Cache.prototype.disable = function disable(key) {
+Cache.prototype.disable = function(key) {
   this.emit('disable');
   return this.set(key, false);
 };
@@ -347,13 +385,13 @@ Cache.prototype.disable = function disable(key) {
  * //=> true
  * ```
  *
- * @method  `exists`
+ * @method  exists
  * @param   {String}  `key`
  * @return  {Boolean}
  * @api public
  */
 
-Cache.prototype.exists = function exists(key) {
+Cache.prototype.exists = function(key) {
   return getobject.exists(this.cache, key);
 };
 
@@ -376,12 +414,12 @@ Cache.prototype.exists = function exists(key) {
  * ```
  *
  * @chainable
- * @method `union`
+ * @method union
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.union = function union(key) {
+Cache.prototype.union = function(key) {
   var args = [].slice.call(arguments, 1);
   var arr = this.get(key) || [];
 
@@ -414,8 +452,15 @@ Cache.prototype.union = function union(key) {
  * @api public
  */
 
-Cache.prototype.extend = function extend() {
+Cache.prototype.extend = function() {
   var args = [].slice.call(arguments);
+  if (typeof args[0] === 'string') {
+    var name = args[0];
+    this.cache[name] = this.cache[name] || {};
+    _.extend.apply(_, [this.cache[name]].concat(_.rest(args)));
+    this.emit('extend');
+    return this;
+  }
   _.extend.apply(_, [this.cache].concat(args));
   this.emit('extend');
   return this;
@@ -442,8 +487,15 @@ Cache.prototype.extend = function extend() {
  * @api public
  */
 
-Cache.prototype.merge = function merge() {
+Cache.prototype.merge = function() {
   var args = [].slice.call(arguments);
+  if (typeof args[0] === 'string') {
+    var name = args[0];
+    this.cache[name] = this.cache[name] || {};
+    _.merge.apply(_, [this.cache[name]].concat(_.rest(args)));
+    this.emit('merge');
+    return this;
+  }
   _.merge.apply(_, [this.cache].concat(args));
   this.emit('merge');
   return this;
@@ -463,13 +515,14 @@ Cache.prototype.merge = function merge() {
  * //=> {a: 'c', b: 'c'}
  * ```
  *
+ * @method process
  * @param {*} `lookup` Any value to process, usually strings with a
  *                     cache template, like `<%= foo %>` or `${foo}`.
  * @param {*} `opts` Options to pass to Lo-Dash `_.template`.
  * @api public
  */
 
-Cache.prototype.process = function process(lookup, context) {
+Cache.prototype.process = function(lookup, context) {
   context = context || this.cache;
 
   if (typeOf(lookup) === 'object') {
@@ -505,12 +558,12 @@ Cache.prototype.process = function process(lookup, context) {
  * ```
  *
  * @chainable
- * @method `omit`
+ * @method omit
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.omit = function omit() {
+Cache.prototype.omit = function() {
   var args = [].slice.call(arguments);
   this.cache = _.omit.apply(_, [this.cache].concat(args));
   this.emit('omit');
@@ -531,12 +584,12 @@ Cache.prototype.omit = function omit() {
  * ```
  *
  * @chainable
- * @method `clear`
+ * @method clear
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.clear = function clear(key) {
+Cache.prototype.clear = function(key) {
   if (key) {
     this.emit('clear', key);
     delete this.cache[key];
@@ -547,54 +600,26 @@ Cache.prototype.clear = function clear(key) {
   return this;
 };
 
-//********************************************************
-
 
 /**
- * ## .data
- *
- * Extend the `data` object with data from a JSON file, YAML file,
- * or by passing an object directly. Glob patterns may be used for
- * file paths.
- *
- * @method `data`
- * @param {Object} `data`
- * @param {Object} `options` Options to pass to [plasma].
- * @return {Cache} for chaining
- * @api public
- */
-
-Cache.prototype.data = function(data, options) {
-  if (!arguments.length) {
-    return this.cache.data;
-  }
-  var obj = {};
-  _.extend(obj, this.plasma(data, options));
-  // _.extend(obj, this.mergeToRoot(data));
-  _.extend(obj, this.extendData(data));
-
-  // console.log(obj);
-  return this;
-};
-
-
-/**
- * ## .mergeToRoot
+ * ## .flattenData
  *
  * If a `data` property is on the given `data` object
  * (e.g. `data.data`, like when files named `data.json`
  * or `data.yml` are used), the value of `data.data`'s
  * is flattened to the root `data` object.
  *
+ * @method flattenData
  * @param {Object} `data`
  * @return {Object} Returns the flattened object.
  * @api private
  */
 
-Cache.prototype.mergeToRoot = function root(data) {
-  if (data && data.hasOwnProperty('data')) {
-    _.extend(data, data.data);
-    delete data.data;
+Cache.prototype.flattenData = function(data, name) {
+  name = name || 'data';
+  if (data && data.hasOwnProperty(name)) {
+    _.extend(data, data[name]);
+    delete data[name];
   }
   return data;
 };
@@ -609,20 +634,20 @@ Cache.prototype.mergeToRoot = function root(data) {
  * **Example**
  *
  * ```js
- * assemble
+ * config
  *   .extendData({foo: 'bar'}, {baz: 'quux'});
  *   .extendData({fez: 'bang'});
  * ```
  *
  * @chainable
- * @method `extendData`
+ * @method extendData
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.extendData = function extendData() {
-  var args = [].slice.call(arguments, 1);
-  this.extend('data', args);
+Cache.prototype.extendData = function() {
+  var args = [].slice.call(arguments);
+  this.extend('data', args[0]);
   return this;
 };
 
@@ -635,20 +660,16 @@ Cache.prototype.extendData = function extendData() {
  * **Example:**
  *
  * ```js
- * assemble
+ * config
  *   .plasma({foo: 'bar'}, {baz: 'quux'});
  *   .plasma({fez: 'bang'});
  * ```
  *
  * See the [plasma] documentation for all available options.
  *
- * [plasma]: https://github.com/jonschlinkert/plasma
- *
- * @method `plasma`
+ * @method plasma
  * @param {Object|String|Array} `data` File path(s), glob pattern, or object of data.
  * @param {Object} `options` Options to pass to plasma.
- * @return {Assemle} for chaining
- * @chainable
  * @api public
  */
 
@@ -669,7 +690,7 @@ Cache.prototype.plasma = function(data) {
  * **Example**
  *
  * ```js
- * data.namespace(['alert.json', 'nav*.json']);
+ * config.namespace(['alert.json', 'nav*.json']);
  * ```
  * The data from each file is namespaced using the name of the file:
  *
@@ -682,19 +703,55 @@ Cache.prototype.plasma = function(data) {
  *
  * See the [plasma] documentation for all available options.
  *
+ * @method namespace
  * @param {String|Array} `patterns` Filepaths or glob patterns.
  * @return {null}
  * @api public
  */
 
-Cache.prototype.namespace = function(namespace, data, options) {
-  data = namespaceCache(namespace, data, options);
-  data = this.mergeToRoot(data);
-  return this.extendData(data);
+Cache.prototype.namespace = function(namespace, data, context) {
+  var ctx = _.extend({}, this.cache.data, context);
+  var obj = namespaceData(namespace, data, ctx);
+  return this.extendData(this.flattenData(obj));
 };
 
 
-//********************************************************
+/**
+ * ## .data
+ *
+ * Extend the `data` object with data from a JSON or YAML file,
+ * or by passing an object directly. Glob patterns may be used for
+ * file paths.
+ *
+ * ```js
+ * config
+ *   .data({a: 'b'})
+ *   .data({c: 'd'});
+ *
+ * console.log(config.cache);
+ * //=> {data: {a: 'b', c: 'd'}}
+ * ```
+ *
+ * @method data
+ * @param {Object} `data`
+ * @param {Object} `options` Options to pass to [plasma].
+ * @return {Cache} for chaining
+ * @api public
+ */
+
+Cache.prototype.data = function(data, options) {
+  var args = [].slice.call(arguments);
+
+  if (!args.length) {
+    return this.cache.data;
+  }
+  var obj = {};
+  _.extend(obj, plasma.apply(this, args));
+  obj = this.flattenData(obj);
+  this.extendData(obj);
+  return this;
+};
+
 
 /**
  * ## .typeOf
@@ -712,6 +769,3 @@ function typeOf(value) {
     .toLowerCase()
     .replace(/\[object ([\S]+)\]/, '$1');
 }
-
-
-module.exports = Cache;

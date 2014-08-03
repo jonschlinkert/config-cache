@@ -96,40 +96,4 @@ describe('config get/set', function () {
       config.exists('baba').should.be.ok;
     });
   });
-
-  describe('.enable()', function () {
-    it('should set the value to true', function () {
-      config.enable('foo').should.equal(config);
-      config.get('foo').should.be.ok;
-    });
-  });
-
-  describe('.disable()', function () {
-    it('should set the value to false', function () {
-      config.disable('foo').should.equal(config);
-      config.get('foo').should.be.false;
-    });
-  });
-
-  describe('.enabled()', function () {
-    it('should default to false', function () {
-      config.enabled('xyz').should.be.false;
-    });
-
-    it('should return true when set', function () {
-      config.set('a', 'b');
-      config.enabled('a').should.be.ok;
-    });
-  });
-
-  describe('.disabled()', function () {
-    it('should default to true', function () {
-      config.disabled('xyz').should.be.ok;
-    });
-
-    it('should return false when set', function () {
-      config.set('abc', 'xyz');
-      config.disabled('abc').should.be.false;
-    });
-  });
 });

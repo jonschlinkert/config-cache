@@ -36,6 +36,7 @@
     "test": "mocha -R spec"
   },
   "devDependencies": {
+    "coffee-script": "^1.7.1",
     "mocha": "*",
     "should": "^4.0.4",
     "verb": ">= 0.2.6",

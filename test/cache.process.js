@@ -50,8 +50,7 @@ describe('config process', function () {
 
         config.data({fez: 'bang', pop: 'boom-pow!'});
         config.data({whistle: '<%= upper(fez) %>-<%= upper(pop) %>'});
-        // console.log(config)
-        config.get('whistle').should.equal('<%= upper(fez) %>-<%= upper(pop) %>');
+        config.get('data.whistle').should.equal('<%= upper(fez) %>-<%= upper(pop) %>');
 
         var a = config.process(config.get('data.whistle'), config.get('data'));
         a.should.equal('BANG-BOOM-POW!');
