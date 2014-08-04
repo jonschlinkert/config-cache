@@ -46,11 +46,10 @@ describe('config data', function() {
       config.get('foo').should.have.property('z');
     });
 
-
     it('should extend the `cache.data` object.', function() {
       config
-        .extend('data', {x: 'x', y: 'y', z: 'z', a: 'a', b: 'b', c: 'c'})
-        // .extend('data', {a: 'a', b: 'b', c: 'c'});
+        .extend('data', {x: 'x', y: 'y', z: 'z'})
+        .extend('data', {a: 'a', b: 'b', c: 'c'});
 
       config.get('data').should.have.property('a');
       config.get('data').should.have.property('b');

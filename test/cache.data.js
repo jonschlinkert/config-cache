@@ -32,6 +32,21 @@ describe('config data', function() {
       config.get('data').should.have.property('y');
       config.get('data').should.have.property('z');
     });
+
+    it('should extend the `data` object when the first param is a string.', function() {
+      config
+        .extendData('foo', {x: 'x', y: 'y', z: 'z'})
+        .extendData('bar', {a: 'a', b: 'b', c: 'c'});
+
+      config.get('data').should.have.property('foo');
+      config.get('data').should.have.property('bar');
+
+      config.get('data.foo').should.have.property('x');
+      config.get('data.bar').should.have.property('a');
+
+      config.cache.data.foo.should.have.property('x');
+      config.cache.data.bar.should.have.property('a');
+    });
   });
 
   describe('.flattenData()', function() {
