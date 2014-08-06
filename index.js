@@ -25,15 +25,20 @@ var Events = require('./events');
  * ```
  *
  * @class Cache
- * @param {Object} `obj` Optionally pass an object to initialize `this.cache`.
+ * @param {Object} `obj` Optionally pass an object to initialize `this[this.namespace]`.
  * @constructor
  * @api public
  */
 
-var Cache = module.exports = function(obj) {
+var Cache = module.exports = function(obj, namespace) {
   Events.call(this);
-  this.cache = obj || {};
-  this.cache.data = {};
+  if (typeof obj === 'string') {
+    namespace = obj;
+    obj = {};
+  }
+  this.namespace = namespace || 'cache';
+  this[namespace] = obj || {};
+  this[namespace].data = {};
   this.options = {};
 };
 
@@ -62,10 +67,13 @@ Cache.prototype.option = function(key, value) {
   if (!value) {
     return this.options[key];
   }
+
   if (typeOf(key) === 'object') {
     _.extend(this.options, key);
   }
+
   this.options[key] = value;
+  this.emit('option', key, value);
   return this;
 };
 
@@ -124,10 +132,10 @@ Cache.prototype.set = function(key, value, expand) {
   }
 
   if (expand) {
-    value = this.process(value, this.cache);
+    value = this.process(value, this[this.namespace]);
     this.set(key, value);
   } else {
-    getobject.set(this.cache, key, value);
+    getobject.set(this[this.namespace], key, value);
   }
 
   this.emit('set', key, value);
@@ -158,9 +166,9 @@ Cache.prototype.set = function(key, value, expand) {
 
 Cache.prototype.get = function(key, create) {
   if (!key) {
-    return this.cache;
+    return this[this.namespace];
   }
-  return getobject.get(this.cache, key, create);
+  return getobject.get(this[this.namespace], key, create);
 };
 
 
@@ -205,7 +213,7 @@ Cache.prototype.constant = function(key, value, namespace) {
 /**
  * ## .methods (key)
  *
- * Return methods on `this.cache` or the given `obj`.
+ * Return methods on `this[this.namespace]` or the given `obj`.
  *
  * ```js
  * config.methods('foo')
@@ -219,7 +227,7 @@ Cache.prototype.constant = function(key, value, namespace) {
  */
 
 Cache.prototype.methods = function(obj) {
-  obj = obj || this.cache;
+  obj = obj || this[this.namespace];
   return _.pick(obj, _.methods(obj));
 };
 
@@ -341,7 +349,7 @@ Cache.prototype.disable = function(key) {
  */
 
 Cache.prototype.exists = function(key) {
-  return getobject.exists(this.cache, key);
+  return getobject.exists(this[this.namespace], key);
 };
 
 
@@ -422,7 +430,7 @@ Cache.prototype.extend = function() {
     this.emit('extend');
     return this;
   }
-  _.extend.apply(_, [this.cache].concat(args));
+  _.extend.apply(_, [this[this.namespace]].concat(args));
   this.emit('extend');
   return this;
 };
@@ -457,7 +465,7 @@ Cache.prototype.merge = function() {
     this.emit('merge');
     return this;
   }
-  _.merge.apply(_, [this.cache].concat(args));
+  _.merge.apply(_, [this[this.namespace]].concat(args));
   this.emit('merge');
   return this;
 };
@@ -466,7 +474,7 @@ Cache.prototype.merge = function() {
 /**
  * ## .keys
  *
- * Return the keys on `this.cache`.
+ * Return the keys on `this[this.namespace]`.
  *
  * ```js
  * config.keys();
@@ -478,7 +486,7 @@ Cache.prototype.merge = function() {
  */
 
 Cache.prototype.keys = function() {
-  return Object.keys(this.cache);
+  return Object.keys(this[this.namespace]);
 };
 
 
@@ -486,7 +494,7 @@ Cache.prototype.keys = function() {
  * ## .hasOwn
  *
  * Return true if `key` is an own, enumerable property
- * of `this.cache` or the given `obj`.
+ * of `this[this.namespace]` or the given `obj`.
  *
  * ```js
  * config.hasOwn([key]);
@@ -500,7 +508,7 @@ Cache.prototype.keys = function() {
  */
 
 Cache.prototype.hasOwn = function(key, obj) {
-  return {}.hasOwnProperty.call(obj || this.cache, key);
+  return {}.hasOwnProperty.call(obj || this[this.namespace], key);
 };
 
 
@@ -520,14 +528,14 @@ Cache.prototype.hasOwn = function(key, obj) {
  */
 
 Cache.prototype.clone = function(obj) {
-  return _.cloneDeep(obj || this.cache);
+  return _.cloneDeep(obj || this[this.namespace]);
 };
 
 
 /**
  * ## .each
  *
- * Call `fn` on each property in `this.cache`.
+ * Call `fn` on each property in `this[this.namespace]`.
  *
  * ```js
  * config.each(fn, obj);
@@ -541,7 +549,7 @@ Cache.prototype.clone = function(obj) {
  */
 
 Cache.prototype.each = function(fn, obj) {
-  obj = obj || this.cache;
+  obj = obj || this[this.namespace];
   for (var key in obj) {
     if (this.hasOwn(key)) {
       fn(key, obj[key]);
@@ -554,7 +562,7 @@ Cache.prototype.each = function(fn, obj) {
 /**
  * ## .visit
  *
- * Traverse each _own property_ of `this.cache` or the given object,
+ * Traverse each _own property_ of `this[this.namespace]` or the given object,
  * recursively calling `fn` on child objects.
  *
  * ```js
@@ -572,9 +580,9 @@ Cache.prototype.visit = function(obj, fn) {
   var cloned = {};
   if (arguments.length === 1) {
     fn = obj;
-    obj = this.cache;
+    obj = this[this.namespace];
   }
-  obj = obj || this.cache;
+  obj = obj || this[this.namespace];
   for (var key in obj) {
     if (this.hasOwn(key, obj)) {
       var child = obj[key];
@@ -615,7 +623,7 @@ Cache.prototype.visit = function(obj, fn) {
  */
 
 Cache.prototype.process = function(lookup, context) {
-  context = context || this.cache;
+  context = context || this[this.namespace];
 
   if (typeOf(lookup) === 'object') {
     context = _.extend({}, context, lookup);
@@ -750,7 +758,7 @@ Cache.prototype.plasma = function() {
  */
 
 Cache.prototype.namespace = function(namespace, data, context) {
-  var ctx = _.extend({}, this.cache.data, context);
+  var ctx = _.extend({}, this[this.namespace].data, context);
   var obj = namespaceData(namespace, data, ctx);
   return this.extendData(this.flattenData(obj));
 };
@@ -783,7 +791,7 @@ Cache.prototype.data = function() {
   var args = [].slice.call(arguments);
 
   if (!args.length) {
-    return this.cache.data;
+    return this[this.namespace].data;
   }
   var obj = {};
   _.extend(obj, plasma.apply(this, args));
@@ -822,7 +830,7 @@ Cache.prototype.data = function() {
 
 Cache.prototype.omit = function() {
   var args = [].slice.call(arguments);
-  this.cache = _.omit.apply(_, [this.cache].concat(args));
+  this[this.namespace] = _.omit.apply(_, [this[this.namespace]].concat(args));
   this.emit('omit');
   return this;
 };
@@ -848,9 +856,9 @@ Cache.prototype.omit = function() {
 Cache.prototype.clear = function(key) {
   if (key) {
     this.emit('clear', key);
-    delete this.cache[key];
+    delete this[this.namespace][key];
   } else {
-    this.cache = {};
+    this[this.namespace] = {};
     this.emit('clear');
   }
 };
