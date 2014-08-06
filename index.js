@@ -31,137 +31,42 @@ var Events = require('./events');
  */
 
 var Cache = module.exports = function(obj) {
-  Events .call(this);
+  Events.call(this);
   this.cache = obj || {};
   this.cache.data = {};
+  this.options = {};
 };
 
 util.inherits(Cache, Events);
 
 
 /**
- * ## .keys
+ * ## .option
  *
- * Return the keys on `this.cache`.
+ * Set or get an option.
  *
  * ```js
- * config.keys();
+ * config.option('a', true)
+ * config.option('a')
+ * // => true
  * ```
  *
- * @method keys
- * @return {Boolean}
+ * @method option
+ * @param {String} `key`
+ * @param {*} `value`
+ * @return {*}
  * @api public
  */
 
-Cache.prototype.keys = function() {
-  return Object.keys(this.cache);
-};
-
-
-/**
- * ## .hasOwn
- *
- * Return true if `key` is an own, enumerable property
- * of `this.cache` or the given `obj`.
- *
- * ```js
- * config.hasOwn([key]);
- * ```
- *
- * @method hasOwn
- * @param  {String} `key`
- * @param  {Object} `obj` Optionally pass an object to check.
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.hasOwn = function(key, obj) {
-  return {}.hasOwnProperty.call(obj || this.cache, key);
-};
-
-
-/**
- * ## .clone
- *
- * Clone the given `obj` or `cache`.
- *
- * ```js
- * config.clone();
- * ```
- *
- * @method clone
- * @param  {Object} `obj` Optionally pass an object to clone.
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.clone = function(obj) {
-  return _.cloneDeep(obj || this.cache);
-};
-
-
-/**
- * ## .each
- *
- * Call `fn` on each property in `this.cache`.
- *
- * ```js
- * config.each(fn, obj);
- * ```
- *
- * @method each
- * @param  {Function} `fn`
- * @param  {Object} `obj` Optionally pass an object to iterate over.
- * @return {Object} Resulting object.
- * @api public
- */
-
-Cache.prototype.each = function(fn, obj) {
-  obj = obj || this.cache;
-  for (var key in obj) {
-    if (this.hasOwn(key)) {
-      fn(key, obj[key]);
-    }
+Cache.prototype.option = function(key, value) {
+  if (!value) {
+    return this.options[key];
   }
-  return obj;
-};
-
-
-/**
- * ## .visit
- *
- * Traverse each _own property_ of `this.cache` or the given object,
- * recursively calling `fn` on child objects.
- *
- * ```js
- * config.visit(obj, fn);
- * ```
- *
- * @method visit
- * @param {Object|Function} `obj` Optionally pass an object.
- * @param {Function} `fn`
- * @return {Object} Return the resulting object.
- * @api public
- */
-
-Cache.prototype.visit = function(obj, fn) {
-  var cloned = {};
-  if (arguments.length === 1) {
-    fn = obj;
-    obj = this.cache;
+  if (typeOf(key) === 'object') {
+    _.extend(this.options, key);
   }
-  obj = obj || this.cache;
-  for (var key in obj) {
-    if (this.hasOwn(key, obj)) {
-      var child = obj[key];
-      fn.call(this, key, child);
-      if (child != null && typeOf(child) === 'object') {
-        child = this.visit(child, fn);
-      }
-      cloned[key] = child;
-    }
-  }
-  return cloned;
+  this.options[key] = value;
+  return this;
 };
 
 
@@ -319,8 +224,9 @@ Cache.prototype.methods = function(obj) {
 };
 
 
+
 /**
- * ## .enabled (key)
+ * ## .enabled
  *
  * Check if `key` is enabled (truthy).
  *
@@ -345,7 +251,7 @@ Cache.prototype.enabled = function(key) {
 
 
 /**
- * ## .disabled (key)
+ * ## .disabled
  *
  * Check if `key` is disabled.
  *
@@ -370,7 +276,7 @@ Cache.prototype.disabled = function(key) {
 
 
 /**
- * ## .enable (key)
+ * ## .enable
  *
  * Enable `key`.
  *
@@ -393,7 +299,7 @@ Cache.prototype.enable = function(key) {
 
 
 /**
- * ## .disable (key)
+ * ## .disable
  *
  * Disable `key`.
  *
@@ -558,6 +464,132 @@ Cache.prototype.merge = function() {
 
 
 /**
+ * ## .keys
+ *
+ * Return the keys on `this.cache`.
+ *
+ * ```js
+ * config.keys();
+ * ```
+ *
+ * @method keys
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.keys = function() {
+  return Object.keys(this.cache);
+};
+
+
+/**
+ * ## .hasOwn
+ *
+ * Return true if `key` is an own, enumerable property
+ * of `this.cache` or the given `obj`.
+ *
+ * ```js
+ * config.hasOwn([key]);
+ * ```
+ *
+ * @method hasOwn
+ * @param  {String} `key`
+ * @param  {Object} `obj` Optionally pass an object to check.
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.hasOwn = function(key, obj) {
+  return {}.hasOwnProperty.call(obj || this.cache, key);
+};
+
+
+/**
+ * ## .clone
+ *
+ * Clone the given `obj` or `cache`.
+ *
+ * ```js
+ * config.clone();
+ * ```
+ *
+ * @method clone
+ * @param  {Object} `obj` Optionally pass an object to clone.
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.clone = function(obj) {
+  return _.cloneDeep(obj || this.cache);
+};
+
+
+/**
+ * ## .each
+ *
+ * Call `fn` on each property in `this.cache`.
+ *
+ * ```js
+ * config.each(fn, obj);
+ * ```
+ *
+ * @method each
+ * @param  {Function} `fn`
+ * @param  {Object} `obj` Optionally pass an object to iterate over.
+ * @return {Object} Resulting object.
+ * @api public
+ */
+
+Cache.prototype.each = function(fn, obj) {
+  obj = obj || this.cache;
+  for (var key in obj) {
+    if (this.hasOwn(key)) {
+      fn(key, obj[key]);
+    }
+  }
+  return obj;
+};
+
+
+/**
+ * ## .visit
+ *
+ * Traverse each _own property_ of `this.cache` or the given object,
+ * recursively calling `fn` on child objects.
+ *
+ * ```js
+ * config.visit(obj, fn);
+ * ```
+ *
+ * @method visit
+ * @param {Object|Function} `obj` Optionally pass an object.
+ * @param {Function} `fn`
+ * @return {Object} Return the resulting object.
+ * @api public
+ */
+
+Cache.prototype.visit = function(obj, fn) {
+  var cloned = {};
+  if (arguments.length === 1) {
+    fn = obj;
+    obj = this.cache;
+  }
+  obj = obj || this.cache;
+  for (var key in obj) {
+    if (this.hasOwn(key, obj)) {
+      var child = obj[key];
+      fn.call(this, key, child);
+      if (child != null && typeOf(child) === 'object') {
+        child = this.visit(child, fn);
+      }
+      cloned[key] = child;
+    }
+  }
+  return cloned;
+};
+
+
+/**
  * # Data
  *
  * > Methods for reading data files, processing template strings and
@@ -612,10 +644,15 @@ Cache.prototype.process = function(lookup, context) {
 
 Cache.prototype.flattenData = function(data, name) {
   name = name || 'data';
-  if (data && data.hasOwnProperty(name)) {
-    _.extend(data, data[name]);
-    delete data[name];
-  }
+
+  name = !Array.isArray(name) ? [name] : name;
+  name.forEach(function (prop) {
+    if (data && data.hasOwnProperty(prop)) {
+      _.extend(data, data[prop]);
+      delete data[prop];
+    }
+  });
+
   return data;
 };
 
