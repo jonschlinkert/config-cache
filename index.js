@@ -34,7 +34,7 @@ var Cache = module.exports = function(obj) {
   Events.call(this);
   this.cache = obj || {};
   this.cache.data = {};
-  this.options = {};
+  this.options = this.options || {};
 };
 
 util.inherits(Cache, Events);
@@ -59,13 +59,21 @@ util.inherits(Cache, Events);
  */
 
 Cache.prototype.option = function(key, value) {
-  if (!value) {
+  var args = [].slice.call(arguments);
+
+  if (args.length === 1 && typeof key === 'string') {
     return this.options[key];
   }
+
   if (typeOf(key) === 'object') {
-    _.extend(this.options, key);
+    _.extend.apply(_, [this.options].concat(args));
+    this.emit('option');
+    return this;
   }
+
   this.options[key] = value;
+  this.emit('option');
+
   return this;
 };
 
