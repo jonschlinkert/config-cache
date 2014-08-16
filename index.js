@@ -785,7 +785,7 @@ Cache.prototype.data = function(values, process) {
 
   // when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
-    last = _.rest(args)[0];
+    last = args[len - 1];
     args = _.initial(args);
   }
 

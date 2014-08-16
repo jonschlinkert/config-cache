@@ -17,85 +17,43 @@ var config = new Config();
 ```
 
 ## API
+[## Cache](index.js#L33)
+
 Initialize a new `Cache`
 
-```js
-var config = new Cache();
-```
-
-* `obj` {Object}: Optionally pass an object to initialize `this.cache`.   
-
-
-### .keys
-
-Return the keys on `this.cache`.
+* `obj` **{Object}**: Optionally pass an object to initialize with.  
 
 ```js
-config.keys();
+var cache = new Cache();
 ```
- 
-* `return` {Boolean} 
 
 
-### .hasOwn
+ [## option](index.js#L58)
 
-Return true if `key` is an own, enumerable property
-of `this.cache` or the given `obj`.
+Set or get an option.
+
+* `key` **{String}**: The option name.  
+* `value` **{*}**: The value to set.  
+* returns **{*|Object}**: Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.  
 
 ```js
-config.hasOwn([key]);
+cache.option('a', true)
+cache.option('a')
+// => true
 ```
 
-* `key` {String} 
-* `obj` {Object}: Optionally pass an object to check.  
-* `return` {Boolean} 
 
-
-### .clone
-
-Clone the given `obj` or `cache`.
-
-```js
-config.clone();
-```
-
-* `obj` {Object}: Optionally pass an object to clone.  
-* `return` {Boolean} 
-
-
-### .each
-
-Call `fn` on each property in `this.cache`.
-
-```js
-config.each(fn, obj);
-```
-
-* `fn` {Function} 
-* `obj` {Object}: Optionally pass an object to iterate over.  
-* `return` {Object} Resulting object. 
-
-
-### .visit
-
-Traverse each _own property_ of `this.cache` or the given object,
-recursively calling `fn` on child objects.
-
-```js
-config.visit(obj, fn);
-```
-
-* `obj` {Object|Function}: Optionally pass an object. 
-* `fn` {Function}  
-* `return` {Object} Return the resulting object. 
-
-
-### .set
+ [## set](index.js#L121)
 
 Assign `value` to `key` or return the value of `key`.
 
+* `key` **{String}**  
+* `value` **{*}**  
+* `expand` **{Boolean}**: Resolve template strings with [expander]  
+* returns **{Cache}**: for chaining  
+
 ```js
-config.set(key, value);
+cache.set(key, value);
 ```
 
 If `expand` is defined as true, the value will be set using [expander].
@@ -104,13 +62,13 @@ If `expand` is defined as true, the value will be set using [expander].
 
 ```js
 // as a key-value pair
-config.set('a', {b: 'c'});
+cache.set('a', {b: 'c'});
 
 // or as an object
-config.set({a: {b: 'c'}});
+cache.set({a: {b: 'c'}});
 
 // chaining is possible
-config
+cache
   .set({a: {b: 'c'}})
   .set('d', 'e');
 ```
@@ -118,7 +76,7 @@ config
 Expand template strings with expander:
 
 ```js
-config.set('a', {b: '${c}', c: 'd'}, true);
+cache.set('a', {b: '${c}', c: 'd'}, true);
 ```
 
 Visit the [expander] docs for more info.
@@ -127,176 +85,281 @@ Visit the [expander] docs for more info.
 [expander]: https://github.com/tkellen/expander
 [getobject]: https://github.com/cowboy/node-getobject
 
-* `key` {String} 
-* `value` {*} 
-* `expand` {Boolean}: Resolve template strings with [expander]  
-* `return` {Cache} for chaining 
 
+ [## get](index.js#L158)
 
-### .get
+Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [getobject] to initialize the value as an empty object.
 
-Return the stored value of `key`. If the value
-does **not** exist on the cache, you may pass
-`true` as a second parameter to tell [getobject]
-to initialize the value as an empty object.
+* `key` **{*}**  
+* `create` **{Boolean}**  
+* returns: {*}  
 
 ```js
-config.set('foo', 'bar');
-config.get('foo');
+cache.set('foo', 'bar');
+cache.get('foo');
 // => "bar"
 ```
 
-* `key` {*} 
-* `create` {Boolean}  
-* `return` {*} 
 
-
-### .constant
+ [## constant](index.js#L181)
 
 Set a constant on the cache.
 
+* `key` **{String}**  
+* `value` **{*}**  
+
 **Example**
 
 ```js
-config.constant('site.title', 'Foo');
+cache.constant('site.title', 'Foo');
 ```
 
-* `key` {String} 
-* `value` {*}   
 
-
-### .methods (key)
-
-Return methods on `this.cache` or the given `obj`.
-
-```js
-config.methods('foo')
-//=> ['set', 'get', 'enable', ...]
-```
-
-* `obj` {Object}  
-* `return` {Array} 
-
-
-### .enabled (key)
+ [## enabled](index.js#L218)
 
 Check if `key` is enabled (truthy).
 
+* `key` **{String}**  
+* returns: {Boolean}  
+
 ```js
-config.enabled('foo')
+cache.enabled('foo')
 // => false
 
-config.enable('foo')
-config.enabled('foo')
+cache.enable('foo')
+cache.enabled('foo')
 // => true
 ```
 
-* `key` {String}  
-* `return` {Boolean} 
 
-
-### .disabled (key)
+ [## disabled](index.js#L240)
 
 Check if `key` is disabled.
 
+* `key` **{String}**  
+* returns: {Boolean}  
+
 ```js
-config.disabled('foo')
+cache.disabled('foo')
 // => true
 
-config.enable('foo')
-config.disabled('foo')
+cache.enable('foo')
+cache.disabled('foo')
 // => false
 ```
 
-* `key` {String}  
-* `return` {Boolean} 
 
-
-### .enable (key)
+ [## enable](index.js#L259)
 
 Enable `key`.
 
+* `key` **{String}**  
+* returns **{Cache}**: for chaining  
+
 **Example**
 
 ```js
-config.enable('foo');
+cache.enable('foo');
 ```
 
-* `key` {String}  
-* `return` {Cache} for chaining 
 
-
-### .disable (key)
+ [## disable](index.js#L279)
 
 Disable `key`.
 
+* `key` **{String}**  
+* returns **{Cache}**: for chaining  
+
 **Example**
 
 ```js
-config.disable('foo');
+cache.disable('foo');
 ```
 
-* `key` {String}  
-* `return` {Cache} for chaining 
+
+ [## exists](index.js#L301)
+
+Return `true` if the element exists. Dot notation may be used for nested properties.
+
+* `key` **{String}**  
+* returns: {Boolean}  
+
+**Example**
+
+```js
+cache.exists('author.name');
+//=> true
+```
 
 
-### .union
+ [## union](index.js#L326)
 
-Add values to an array on the `cache`. This method
-is chainable.
+Add values to an array on the `cache`. This method is chainable.
+
+* returns **{Cache}**: for chaining  
 
 **Example**
 
 ```js
 // config.cache['foo'] => ['a.hbs', 'b.hbs']
-config
+cache
   .union('foo', ['b.hbs', 'c.hbs'], ['d.hbs']);
   .union('foo', ['e.hbs', 'f.hbs']);
 
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
- 
-* `return` {Cache} for chaining 
 
 
-### .extend
+ [## defaults](index.js#L368)
 
-Extend the `cache` with the given object.
-This method is chainable.
+Extend the `cache` with the given object. This method is chainable.
+
+* returns **{Cache}**: for chaining  
 
 **Example**
 
 ```js
-config
+cache
+  .defaults({foo: 'bar'}, {baz: 'quux'});
+  .defaults({fez: 'bang'});
+```
+
+Or define the property to defaults:
+
+```js
+cache
+  // defaults `cache.a`
+  .defaults('a', {foo: 'bar'}, {baz: 'quux'})
+  // defaults `cache.b`
+  .defaults('b', {fez: 'bang'})
+  // defaults `cache.a.b.c`
+  .defaults('a.b.c', {fez: 'bang'});
+```
+
+
+ [## extend](index.js#L415)
+
+Extend the `cache` with the given object. This method is chainable.
+
+* returns **{Cache}**: for chaining  
+
+**Example**
+
+```js
+cache
   .extend({foo: 'bar'}, {baz: 'quux'});
   .extend({fez: 'bang'});
 ```
- 
-* `return` {Cache} for chaining 
+
+Or define the property to extend:
+
+```js
+cache
+  // extend `cache.a`
+  .extend('a', {foo: 'bar'}, {baz: 'quux'})
+  // extend `cache.b`
+  .extend('b', {fez: 'bang'})
+  // extend `cache.a.b.c`
+  .extend('a.b.c', {fez: 'bang'});
+```
 
 
-### .merge
+ [## merge](index.js#L449)
 
-Extend the cache with the given object.
-This method is chainable.
+Extend the cache with the given object. This method is chainable.
+
+* returns **{Cache}**: for chaining  
 
 **Example**
 
 ```js
-config
+cache
   .merge({foo: 'bar'}, {baz: 'quux'});
   .merge({fez: 'bang'});
 ```
- 
-* `return` {Cache} for chaining 
 
 
-## Data
+ [## keys](index.js#L475)
 
-> Methods for reading data files, processing template strings and
-extending the `cache.data` object.
+Return the keys on `this.cache`.
 
-### .process
+* returns: {Boolean}  
+
+```js
+cache.keys();
+```
+
+
+ [## hasOwn](index.js#L494)
+
+Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
+
+* `key` **{String}**  
+* `obj` **{Object}**: Optionally pass an object to check.  
+* returns: {Boolean}  
+
+```js
+cache.hasOwn([key]);
+```
+
+
+ [## clone](index.js#L511)
+
+Clone the given `obj` or `cache`.
+
+* `obj` **{Object}**: Optionally pass an object to clone.  
+* returns: {Boolean}  
+
+```js
+cache.clone();
+```
+
+
+ [## methods](index.js#L529)
+
+Return methods on `this.cache` or the given `obj`.
+
+* `obj` **{Object}**  
+* returns: {Array}  
+
+```js
+cache.methods('foo')
+//=> ['set', 'get', 'enable', ...]
+```
+
+
+ [## each](index.js#L548)
+
+Call `fn` on each property in `this.cache`.
+
+* `fn` **{Function}**  
+* `obj` **{Object}**: Optionally pass an object to iterate over.  
+* returns **{Object}**: Resulting object.  
+
+```js
+cache.each(fn, obj);
+```
+
+
+ [## visit](index.js#L573)
+
+Traverse each _own property_ of `this.cache` or the given object, recursively calling `fn` on child objects.
+
+* `obj` **{Object|Function}**: Optionally pass an object.  
+* `fn` **{Function}**  
+* returns **{Object}**: Return the resulting object.  
+
+```js
+cache.visit(obj, fn);
+```
+
+
+ [## process](index.js#L616)
+
+> Methods for reading data files, processing template strings and extending the `cache.data` object.
+
+* `lookup` **{*}**: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.  
+* `opts` **{*}**: Options to pass to Lo-Dash `_.template`.  
 
 Use [expander] to recursively expand template strings into
 their resolved values.
@@ -304,59 +367,55 @@ their resolved values.
 **Example**
 
 ```js
-config.process({a: '<%= b %>', b: 'c'});
+cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-* `lookup` {*}: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`. 
-* `opts` {*}: Options to pass to Lo-Dash `_.template`.   
 
+ [## extendData](index.js#L673)
 
-### .extendData
+Extend the `cache.data` object with the given data. This method is chainable.
 
-Extend the `cache.data` object with the given data. This
-method is chainable.
+* returns **{Cache}**: for chaining  
 
 **Example**
 
 ```js
-config
+cache
   .extendData({foo: 'bar'}, {baz: 'quux'});
   .extendData({fez: 'bang'});
 ```
- 
-* `return` {Cache} for chaining 
 
 
-### .plasma
+ [## plasma](index.js#L707)
 
 Extend the `data` object with the value returned by [plasma].
+
+* `data` **{Object|String|Array}**: File path(s), glob pattern, or object of data.  
+* `options` **{Object}**: Options to pass to plasma.  
 
 **Example:**
 
 ```js
-config
+cache
   .plasma({foo: 'bar'}, {baz: 'quux'});
   .plasma({fez: 'bang'});
 ```
 
 See the [plasma] documentation for all available options.
 
-* `data` {Object|String|Array}: File path(s), glob pattern, or object of data. 
-* `options` {Object}: Options to pass to plasma.   
 
+ [## namespace](index.js#L740)
 
-### .namespace
+Expects file path(s) or glob pattern(s) to any JSON or YAML files to be merged onto the data object. Any data files read in by the `.namespace()` method will extend the `data` object with an object named after the basename of each file.
 
-Expects file path(s) or glob pattern(s) to any JSON or YAML files to
-be merged onto the data object. Any data files read in by the
-`.namespace()` method will extend the `data` object with an object
-named after the basename of each file.
+* `patterns` **{String|Array}**: Filepaths or glob patterns.  
+* returns: {null}  
 
 **Example**
 
 ```js
-config.namespace(['alert.json', 'nav*.json']);
+cache.namespace(['alert.json', 'nav*.json']);
 ```
 The data from each file is namespaced using the name of the file:
 
@@ -369,18 +428,17 @@ The data from each file is namespaced using the name of the file:
 
 See the [plasma] documentation for all available options.
 
-* `patterns` {String|Array}: Filepaths or glob patterns.  
-* `return` {null} 
 
+ [## data](index.js#L776)
 
-### .data
+Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
-Extend the `data` object with data from a JSON or YAML file,
-or by passing an object directly. Glob patterns may be used for
-file paths.
+* `values` **{Object|Array|String}**: Values to pass to plasma.  
+* `process` **{Boolean}**: If `true`,  
+* returns **{Cache}**: for chaining  
 
 ```js
-config
+cache
   .data({a: 'b'})
   .data({c: 'd'});
 
@@ -388,43 +446,44 @@ console.log(config.cache);
 //=> {data: {a: 'b', c: 'd'}}
 ```
 
-* `data` {Object} 
-* `options` {Object}: Options to pass to [plasma].  
-* `return` {Cache} for chaining 
+When `true` is passed as the last argumemnt data will
+be processed by [expander] before extending `cache.data`.
+
+```js
+cache.data({a: '<%= b %>', b: 'z'})
+//=> {data: {a: 'z', b: 'z'}}
+```
 
 
-## Clearing the cache
+ [## omit](index.js#L830)
 
-> Methods for clearing the cache, removing or reseting specific
-values on the cache.
+> Methods for clearing the cache, removing or reseting specific values on the cache.
 
+* returns **{Cache}**: for chaining  
 
-### .omit
 
 Omit properties and their from the `cache`.
 
 **Example:**
 
 ```js
-config
+cache
   .omit('foo');
   .omit('foo', 'bar');
   .omit(['foo']);
   .omit(['foo', 'bar']);
 ```
- 
-* `return` {Cache} for chaining 
 
 
-### .clear
+ [## clear](index.js#L853)
 
-Remove `key` from the cache, or if no value is
-specified the entire config is reset.
+Remove `key` from the cache, or if no value is specified the entire cache is reset.
+
 
 **Example:**
 
 ```js
-config.clear();
+cache.clear();
 ```
 
 ## Author
@@ -446,6 +505,6 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 03, 2014._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 16, 2014._
 
 [plasma]: https://github.com/jonschlinkert/plasma
