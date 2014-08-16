@@ -681,6 +681,7 @@ Cache.prototype.extendData = function() {
 
   this.extend.apply(this, ['data'].concat(args));
   this.emit('extendData');
+
   return this;
 };
 
@@ -737,6 +738,7 @@ Cache.prototype.plasma = function() {
  */
 
 Cache.prototype.namespace = function(namespace, data, context) {
+  // Shallow clone `cache.data` to pass as context to namespace-data
   var ctx = _.extend({}, this.cache.data, context);
   var o = namespaceData(namespace, data, ctx);
   return this.extendData(this.flattenData(o));
@@ -744,9 +746,9 @@ Cache.prototype.namespace = function(namespace, data, context) {
 
 
 /**
- * Extend the `data` object with data from a JSON or YAML file,
- * or by passing an object directly. Glob patterns may be used for
- * file paths.
+ * Extend the `cache.data` object with data from a JSON
+ * or YAML file, or by passing an object directly - glob
+ * patterns or file paths may be used.
  *
  * ```js
  * cache
@@ -757,21 +759,45 @@ Cache.prototype.namespace = function(namespace, data, context) {
  * //=> {data: {a: 'b', c: 'd'}}
  * ```
  *
- * @param {Object} `data`
- * @param {Object} `options` Options to pass to [plasma].
+ * When `true` is passed as the last argumemnt data will
+ * be processed by [expander] before extending `cache.data`.
+ *
+ * ```js
+ * cache.data({a: '<%= b %>', b: 'z'})
+ * //=> {data: {a: 'z', b: 'z'}}
+ * ```
+ *
+ * @param {Object|Array|String} `values` Values to pass to plasma.
+ * @param {Boolean} `process` If `true`,
  * @return {Cache} for chaining
  * @api public
  */
 
-Cache.prototype.data = function() {
+Cache.prototype.data = function(values, process) {
   var args = [].slice.call(arguments);
+  var len = args.length;
 
-  if (!args.length) {
+  if (!len) {
     return this.cache.data;
   }
-  var o = {};
+
+  var o = {}, last;
+
+  // when the last arg is `true`...
+  if (typeof args[len - 1] === 'boolean') {
+    last = _.rest(args)[0];
+    args = _.initial(args);
+  }
+
   _.extend(o, plasma.apply(this, args));
   o = this.flattenData(o);
+
+  // ...process data with expander
+  if (last) {
+    this.extendData(this.process(o));
+    return this;
+  }
+
   this.extendData(o);
   return this;
 };
@@ -804,6 +830,7 @@ Cache.prototype.data = function() {
 Cache.prototype.omit = function() {
   var args = [].slice.call(arguments);
   this.cache = _.omit.apply(_, [this.cache].concat(args));
+
   this.emit('omit');
   return this;
 };
