@@ -127,7 +127,7 @@ Cache.prototype.set = function(key, value, expand) {
 
   if (expand) {
     value = this.process(value, this.cache);
-    this.set(key, value);
+    this.set(key, value, false);
   } else {
     getobject.set(this.cache, key, value);
   }
