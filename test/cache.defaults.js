@@ -16,16 +16,16 @@ describe('config data', function() {
     config.clear();
   });
 
-  describe('.extend()', function() {
+  describe('.defaults()', function() {
     it('should extend the `cache` with a value.', function() {
-      config.extend({a: 'b'});
+      config.defaults({a: 'b'});
       config.get('a').should.equal('b');
     });
 
     it('should extend the `cache` with an object.', function() {
       config
-        .extend({x: 'x', y: 'y', z: 'z'})
-        .extend({a: 'a', b: 'b', c: 'c'});
+        .defaults({x: 'x', y: 'y', z: 'z'})
+        .defaults({a: 'a', b: 'b', c: 'c'});
 
       config.get().should.have.property('a');
       config.get().should.have.property('b');
@@ -37,25 +37,25 @@ describe('config data', function() {
   });
 
   describe('when the same property is set more than once.', function() {
-    it('should extend the `cache` with the last value defined.', function() {
-      config.extend({a: 'B'}, {a: 'C'});
-      config.get('a').should.equal('C');
+    it('should extend the `cache` with the first value defined.', function() {
+      config.defaults({a: 'B'}, {a: 'C'});
+      config.get('a').should.equal('B');
     });
 
-    it('should extend the `cache` with the last value defined.', function() {
+    it('should extend the `cache` with the first value defined.', function() {
       config
-        .extend({a: 'B'})
-        .extend({a: 'C'});
+        .defaults({a: 'B'})
+        .defaults({a: 'C'});
 
-      config.get('a').should.equal('C');
+      config.get('a').should.equal('B');
     });
   });
 
   describe('when a string is passed as the first param.', function() {
     it('should extend that property on the cache.', function() {
       config
-        .extend('foo', {x: 'x', y: 'y', z: 'z'})
-        .extend('bar', {a: 'a', b: 'b', c: 'c'});
+        .defaults('foo', {x: 'x', y: 'y', z: 'z'})
+        .defaults('bar', {a: 'a', b: 'b', c: 'c'});
 
       config.get('bar').should.have.property('a');
       config.get('bar').should.have.property('b');
@@ -67,8 +67,8 @@ describe('config data', function() {
 
     it('should extend the `cache.data` object.', function() {
       config
-        .extend('data', {x: 'x', y: 'y', z: 'z'})
-        .extend('data', {a: 'a', b: 'b', c: 'c'});
+        .defaults('data', {x: 'x', y: 'y', z: 'z'})
+        .defaults('data', {a: 'a', b: 'b', c: 'c'});
 
       config.get('data').should.have.property('a');
       config.get('data').should.have.property('b');
@@ -82,8 +82,8 @@ describe('config data', function() {
   describe('when a string is passed as the first param.', function() {
     it('should extend that property on the cache.', function() {
       config
-        .extend('foo.xyz', {x: 'x', y: 'y', z: 'z'})
-        .extend('bar.xyz', {a: 'a', b: 'b', c: 'c'});
+        .defaults('foo.xyz', {x: 'x', y: 'y', z: 'z'})
+        .defaults('bar.xyz', {a: 'a', b: 'b', c: 'c'});
 
       config.get('bar.xyz').should.have.property('a');
       config.get('bar.xyz').should.have.property('b');
@@ -101,7 +101,7 @@ describe('config data', function() {
     });
 
     it('should extend deep properties.', function() {
-      config.extend('a.b.c.d.xyz', {x: 'x', y: 'y', z: 'z'})
+      config.defaults('a.b.c.d.xyz', {x: 'x', y: 'y', z: 'z'})
 
       config.get('a.b.c.d.xyz').should.have.property('x');
       config.get('a.b.c.d.xyz').should.have.property('y');

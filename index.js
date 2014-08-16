@@ -33,8 +33,8 @@ var Events = require('./events');
 var Cache = module.exports = function(o) {
   Events.call(this);
   this.cache = o || {};
-  this.cache.data = {};
-  this.options = this.options || {};
+  this.cache.data = this.cache.data || {};
+  this.options = this.cache.options || {};
 };
 
 util.inherits(Cache, Events);
@@ -64,12 +64,12 @@ Cache.prototype.option = function(key, value) {
 
   if (typeOf(key) === 'object') {
     _.extend.apply(_, [this.options].concat(args));
-    this.emit('option');
+    this.emit('option', key, value);
     return this;
   }
 
   this.options[key] = value;
-  this.emit('option');
+  this.emit('option', key, value);
 
   return this;
 };
@@ -332,6 +332,53 @@ Cache.prototype.union = function(key) {
   }
 
   this.set(key, _.union.apply(_, [arr].concat(args)));
+  return this;
+};
+
+
+/**
+ * Extend the `cache` with the given object.
+ * This method is chainable.
+ *
+ * **Example**
+ *
+ * ```js
+ * cache
+ *   .defaults({foo: 'bar'}, {baz: 'quux'});
+ *   .defaults({fez: 'bang'});
+ * ```
+ *
+ * Or define the property to defaults:
+ *
+ * ```js
+ * cache
+ *   // defaults `cache.a`
+ *   .defaults('a', {foo: 'bar'}, {baz: 'quux'})
+ *   // defaults `cache.b`
+ *   .defaults('b', {fez: 'bang'})
+ *   // defaults `cache.a.b.c`
+ *   .defaults('a.b.c', {fez: 'bang'});
+ * ```
+ *
+ * @chainable
+ * @return {Cache} for chaining
+ * @api public
+ */
+
+Cache.prototype.defaults = function() {
+  var args = [].slice.call(arguments);
+
+  if (typeof args[0] === 'string') {
+    var o = this.get(args[0]) || {};
+    o = _.defaults.apply(_, [o].concat(_.rest(args)));
+    this.set(args[0], o);
+    this.emit('defaults');
+    return this;
+  }
+
+  _.defaults.apply(_, [this.cache].concat(args));
+  this.emit('defaults');
+
   return this;
 };
 
