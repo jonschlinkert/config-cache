@@ -614,16 +614,27 @@ Cache.prototype.visit = function(o, fn) {
  */
 
 Cache.prototype.process = function(lookup, context) {
-  context = context || this.cache;
+  var args = [].slice.call(arguments);
 
-  if (typeOf(lookup) === 'object') {
-    context = _.extend({}, context, lookup);
+  if (!args.length) {
+    lookup = context = this.cache.data;
+  } else {
+    context = context || this.cache.data;
+    if (typeOf(lookup) === 'object') {
+      context = _.extend({}, context, lookup);
+    }
   }
 
   var methods = this.methods(context);
-  return expand(context, lookup, {
+  var o = expand(context, lookup, {
     imports: methods
   });
+
+  if (!args.length) {
+    _.extend(this.cache.data, o);
+  }
+
+  return o;
 };
 
 
@@ -738,10 +749,30 @@ Cache.prototype.plasma = function() {
  */
 
 Cache.prototype.namespace = function(namespace, data, context) {
+  var args = [].slice.call(arguments);
+  var len = args.length;
+
+  var o = {}, last;
+
+  // when the last arg is `true`...
+  if (typeof args[len - 1] === 'boolean') {
+    last = args[len - 1];
+    args = _.initial(args);
+    context = {};
+  }
+
   // Shallow clone `cache.data` to pass as context to namespace-data
   var ctx = _.extend({}, this.cache.data, context);
-  var o = namespaceData(namespace, data, ctx);
-  return this.extendData(this.flattenData(o));
+  _.extend(o, namespaceData(namespace, data, ctx));
+
+  o = this.flattenData(o);
+
+  // ...process data with expander
+  if (last) {
+    o = this.process(o);
+  }
+
+  return this.extendData(o);
 };
 
 
@@ -773,7 +804,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
  * @api public
  */
 
-Cache.prototype.data = function(values, process) {
+Cache.prototype.data = function() {
   var args = [].slice.call(arguments);
   var len = args.length;
 
@@ -789,7 +820,7 @@ Cache.prototype.data = function(values, process) {
     args = _.initial(args);
   }
 
-  _.extend(o, plasma.apply(this, args));
+  _.extend(o, plasma.apply(plasma, args));
   o = this.flattenData(o);
 
   // ...process data with expander

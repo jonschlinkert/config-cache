@@ -63,24 +63,41 @@ describe('config data', function () {
     });
   });
 
-  describe('when a `:propstring` is passed and matching context is found.', function() {
-    it('should namespace data using value matching the `:propstring`.', function() {
-      config.namespace(':foo', 'test/fixtures/data/data.json', {foo: 'bar'});
-      config.get('data').should.have.property('bar');
+
+  describe('context:', function() {
+    describe('when a `:propstring` is passed and matching context is found.', function() {
+      it('should namespace data using value matching the `:propstring`.', function() {
+        config.namespace(':foo', 'test/fixtures/data/data.json', {foo: 'bar'});
+        config.get('data').should.have.property('bar');
+      });
+    });
+
+    describe('when a `:propstring` is passed and NO matching context is found.', function() {
+      it('should namespace data using the actual `:propstring`.', function() {
+        config.namespace(':foo', 'test/fixtures/data/data.json');
+        config.get('data').should.have.property('foo');
+      });
     });
   });
 
-  describe('when a `:propstring` is passed and NO matching context is found.', function() {
-    it('should namespace data using the actual `:propstring`.', function() {
-      config.namespace(':foo', 'test/fixtures/data/data.json');
-      config.get('data').should.have.property('foo');
-    });
-  });
 
   describe('.namespace()', function() {
     it('should namespace data using the specified value.', function() {
       config.namespace('site', 'test/fixtures/data/data.json');
       config.get('data').should.have.property('site');
+    });
+  });
+
+  describe('.process()', function() {
+    it('should process namespaced data to expand template strings.', function() {
+      config.namespace('site', 'test/fixtures/namespace/*.{json,yml}', true);
+      config.get('data').should.have.property('site');
+      config.get('data.site').should.have.property('two');
+      config.get('data.site').should.have.property('three');
+
+      config.get('data.site.one').should.equal('data was processed!');
+      config.get('data.site.two').should.equal('data was processed!');
+      config.get('data.site.three').should.equal('data was processed!');
     });
   });
 });

@@ -25,9 +25,22 @@ describe('config process', function () {
       store.a.should.equal('c')
     });
 
+    it('should process the cache when no arguments are passed', function () {
+      config.data({a: '${b}', b: '${c}', c: 'DONE'});
+      config.get('data.a').should.equal('${b}');
+      config.get('data.b').should.equal('${c}');
+      config.get('data.c').should.equal('DONE');
+
+      config.process();
+
+      config.get('data.a').should.equal('DONE');
+      config.get('data.b').should.equal('DONE');
+      config.get('data.c').should.equal('DONE');
+    });
+
     it('should resolve es6 template strings in config values', function () {
       var store = config.process({a: '${b}', b: 'c'});
-      store.a.should.equal('c')
+      store.a.should.equal('c');
     });
 
     it('should recursively resolve template strings.', function () {
