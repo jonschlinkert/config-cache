@@ -17,24 +17,23 @@ var config = new Config();
 ```
 
 ## API
-[## Cache](index.js#L33)
+### [Cache](index.js#L33)
 
 Initialize a new `Cache`
 
-* `obj` **{Object}**: Optionally pass an object to initialize with.  
+* `obj` **{Object}**: Optionally pass an object to initialize with.    
 
 ```js
 var cache = new Cache();
 ```
 
-
- [## option](index.js#L58)
+### [.option](index.js#L58)
 
 Set or get an option.
 
-* `key` **{String}**: The option name.  
-* `value` **{*}**: The value to set.  
-* returns **{*|Object}**: Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.  
+* `key` **{String}**: The option name.    
+* `value` **{*}**: The value to set.    
+* `returns` **{*|Object}**: Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.  
 
 ```js
 cache.option('a', true)
@@ -42,15 +41,14 @@ cache.option('a')
 // => true
 ```
 
-
- [## set](index.js#L121)
+### [.set](index.js#L121)
 
 Assign `value` to `key` or return the value of `key`.
 
-* `key` **{String}**  
-* `value` **{*}**  
-* `expand` **{Boolean}**: Resolve template strings with [expander]  
-* returns **{Cache}**: for chaining  
+* `key` **{String}**    
+* `value` **{*}**    
+* `expand` **{Boolean}**: Resolve template strings with [expander]    
+* `returns` **{Cache}**: for chaining  
 
 ```js
 cache.set(key, value);
@@ -81,18 +79,16 @@ cache.set('a', {b: '${c}', c: 'd'}, true);
 
 Visit the [expander] docs for more info.
 
-
 [expander]: https://github.com/tkellen/expander
 [getobject]: https://github.com/cowboy/node-getobject
 
-
- [## get](index.js#L158)
+### [.get](index.js#L158)
 
 Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [getobject] to initialize the value as an empty object.
 
-* `key` **{*}**  
-* `create` **{Boolean}**  
-* returns: {*}  
+* `key` **{*}**    
+* `create` **{Boolean}**    
+* `returns`: {*}  
 
 ```js
 cache.set('foo', 'bar');
@@ -100,13 +96,12 @@ cache.get('foo');
 // => "bar"
 ```
 
-
- [## constant](index.js#L181)
+### [.constant](index.js#L181)
 
 Set a constant on the cache.
 
-* `key` **{String}**  
-* `value` **{*}**  
+* `key` **{String}**    
+* `value` **{*}**    
 
 **Example**
 
@@ -114,13 +109,12 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-
- [## enabled](index.js#L218)
+### [.enabled](index.js#L218)
 
 Check if `key` is enabled (truthy).
 
-* `key` **{String}**  
-* returns: {Boolean}  
+* `key` **{String}**    
+* `returns`: {Boolean}  
 
 ```js
 cache.enabled('foo')
@@ -131,13 +125,12 @@ cache.enabled('foo')
 // => true
 ```
 
-
- [## disabled](index.js#L240)
+### [.disabled](index.js#L240)
 
 Check if `key` is disabled.
 
-* `key` **{String}**  
-* returns: {Boolean}  
+* `key` **{String}**    
+* `returns`: {Boolean}  
 
 ```js
 cache.disabled('foo')
@@ -148,13 +141,12 @@ cache.disabled('foo')
 // => false
 ```
 
-
- [## enable](index.js#L259)
+### [.enable](index.js#L259)
 
 Enable `key`.
 
-* `key` **{String}**  
-* returns **{Cache}**: for chaining  
+* `key` **{String}**    
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -162,13 +154,12 @@ Enable `key`.
 cache.enable('foo');
 ```
 
-
- [## disable](index.js#L279)
+### [.disable](index.js#L279)
 
 Disable `key`.
 
-* `key` **{String}**  
-* returns **{Cache}**: for chaining  
+* `key` **{String}**    
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -176,27 +167,11 @@ Disable `key`.
 cache.disable('foo');
 ```
 
-
- [## exists](index.js#L301)
-
-Return `true` if the element exists. Dot notation may be used for nested properties.
-
-* `key` **{String}**  
-* returns: {Boolean}  
-
-**Example**
-
-```js
-cache.exists('author.name');
-//=> true
-```
-
-
- [## union](index.js#L326)
+### [.union](index.js#L326)
 
 Add values to an array on the `cache`. This method is chainable.
 
-* returns **{Cache}**: for chaining  
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -209,12 +184,11 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-
- [## defaults](index.js#L368)
+### [.defaults](index.js#L368)
 
 Extend the `cache` with the given object. This method is chainable.
 
-* returns **{Cache}**: for chaining  
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -236,12 +210,11 @@ cache
   .defaults('a.b.c', {fez: 'bang'});
 ```
 
-
- [## extend](index.js#L415)
+### [.extend](index.js#L415)
 
 Extend the `cache` with the given object. This method is chainable.
 
-* returns **{Cache}**: for chaining  
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -263,12 +236,11 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-
- [## merge](index.js#L449)
+### [.merge](index.js#L449)
 
 Extend the cache with the given object. This method is chainable.
 
-* returns **{Cache}**: for chaining  
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -278,88 +250,81 @@ cache
   .merge({fez: 'bang'});
 ```
 
-
- [## keys](index.js#L475)
+### [.keys](index.js#L475)
 
 Return the keys on `this.cache`.
 
-* returns: {Boolean}  
+* `returns`: {Boolean}  
 
 ```js
 cache.keys();
 ```
 
-
- [## hasOwn](index.js#L494)
+### [.hasOwn](index.js#L494)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
-* `key` **{String}**  
-* `obj` **{Object}**: Optionally pass an object to check.  
-* returns: {Boolean}  
+* `key` **{String}**    
+* `obj` **{Object}**: Optionally pass an object to check.    
+* `returns`: {Boolean}  
 
 ```js
 cache.hasOwn([key]);
 ```
 
-
- [## clone](index.js#L511)
+### [.clone](index.js#L511)
 
 Clone the given `obj` or `cache`.
 
-* `obj` **{Object}**: Optionally pass an object to clone.  
-* returns: {Boolean}  
+* `obj` **{Object}**: Optionally pass an object to clone.    
+* `returns`: {Boolean}  
 
 ```js
 cache.clone();
 ```
 
-
- [## methods](index.js#L529)
+### [.methods](index.js#L529)
 
 Return methods on `this.cache` or the given `obj`.
 
-* `obj` **{Object}**  
-* returns: {Array}  
+* `obj` **{Object}**    
+* `returns`: {Array}  
 
 ```js
 cache.methods('foo')
 //=> ['set', 'get', 'enable', ...]
 ```
 
-
- [## each](index.js#L548)
+### [.each](index.js#L548)
 
 Call `fn` on each property in `this.cache`.
 
-* `fn` **{Function}**  
-* `obj` **{Object}**: Optionally pass an object to iterate over.  
-* returns **{Object}**: Resulting object.  
+* `fn` **{Function}**    
+* `obj` **{Object}**: Optionally pass an object to iterate over.    
+* `returns` **{Object}**: Resulting object.  
 
 ```js
 cache.each(fn, obj);
 ```
 
-
- [## visit](index.js#L573)
+### [.visit](index.js#L573)
 
 Traverse each _own property_ of `this.cache` or the given object, recursively calling `fn` on child objects.
 
-* `obj` **{Object|Function}**: Optionally pass an object.  
-* `fn` **{Function}**  
-* returns **{Object}**: Return the resulting object.  
+* `obj` **{Object|Function}**: Optionally pass an object.    
+* `fn` **{Function}**    
+* `returns` **{Object}**: Return the resulting object.  
 
 ```js
 cache.visit(obj, fn);
 ```
 
-
- [## process](index.js#L616)
+### [.Data](index.js#L616)
 
 > Methods for reading data files, processing template strings and extending the `cache.data` object.
 
-* `lookup` **{*}**: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.  
-* `opts` **{*}**: Options to pass to Lo-Dash `_.template`.  
+* `lookup` **{*}**: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.    
+* `opts` **{*}**: Options to pass to Lo-Dash `_.template`.    
 
 Use [expander] to recursively expand template strings into
 their resolved values.
@@ -371,12 +336,11 @@ cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-
- [## extendData](index.js#L673)
+### [.extendData](index.js#L684)
 
 Extend the `cache.data` object with the given data. This method is chainable.
 
-* returns **{Cache}**: for chaining  
+* `returns` **{Cache}**: for chaining  
 
 **Example**
 
@@ -386,13 +350,12 @@ cache
   .extendData({fez: 'bang'});
 ```
 
-
- [## plasma](index.js#L707)
+### [.plasma](index.js#L718)
 
 Extend the `data` object with the value returned by [plasma].
 
-* `data` **{Object|String|Array}**: File path(s), glob pattern, or object of data.  
-* `options` **{Object}**: Options to pass to plasma.  
+* `data` **{Object|String|Array}**: File path(s), glob pattern, or object of data.    
+* `options` **{Object}**: Options to pass to plasma.    
 
 **Example:**
 
@@ -404,13 +367,12 @@ cache
 
 See the [plasma] documentation for all available options.
 
-
- [## namespace](index.js#L740)
+### [.namespace](index.js#L751)
 
 Expects file path(s) or glob pattern(s) to any JSON or YAML files to be merged onto the data object. Any data files read in by the `.namespace()` method will extend the `data` object with an object named after the basename of each file.
 
-* `patterns` **{String|Array}**: Filepaths or glob patterns.  
-* returns: {null}  
+* `patterns` **{String|Array}**: Filepaths or glob patterns.    
+* `returns`: {null}  
 
 **Example**
 
@@ -428,14 +390,13 @@ The data from each file is namespaced using the name of the file:
 
 See the [plasma] documentation for all available options.
 
-
- [## data](index.js#L776)
+### [.data](index.js#L807)
 
 Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
-* `values` **{Object|Array|String}**: Values to pass to plasma.  
-* `process` **{Boolean}**: If `true`,  
-* returns **{Cache}**: for chaining  
+* `values` **{Object|Array|String}**: Values to pass to plasma.    
+* `process` **{Boolean}**: If `true`,    
+* `returns` **{Cache}**: for chaining  
 
 ```js
 cache
@@ -454,13 +415,11 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-
- [## omit](index.js#L830)
+### [.Clearing the cache](index.js#L861)
 
 > Methods for clearing the cache, removing or reseting specific values on the cache.
 
-* returns **{Cache}**: for chaining  
-
+* `returns` **{Cache}**: for chaining  
 
 Omit properties and their from the `cache`.
 
@@ -474,11 +433,9 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-
- [## clear](index.js#L853)
+### [.clear](index.js#L884)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
-
 
 **Example:**
 
@@ -505,6 +462,6 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 16, 2014._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 27, 2014._
 
 [plasma]: https://github.com/jonschlinkert/plasma
