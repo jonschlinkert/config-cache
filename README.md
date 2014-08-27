@@ -415,13 +415,17 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-### [.Clearing the cache](index.js#L861)
+## [Clearing the cache](index.js#L846)
 
-> Methods for clearing the cache, removing or reseting specific values on the cache.
 
-* `returns` **{Cache}**: for chaining  
+> Methods for clearing the cache, removing or reseting specific
+values on the cache.
+
+### [.omit](index.js#L865)
 
 Omit properties and their from the `cache`.
+
+* `returns` **{Cache}**: for chaining  
 
 **Example:**
 
@@ -433,7 +437,7 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L884)
+### [.clear](index.js#L888)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 

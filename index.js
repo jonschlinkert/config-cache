@@ -840,7 +840,11 @@ Cache.prototype.data = function() {
  * > Methods for clearing the cache, removing or reseting specific
  * values on the cache.
  *
- *
+ * @section
+ */
+
+
+/**
  * Omit properties and their from the `cache`.
  *
  * **Example:**
