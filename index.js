@@ -30,15 +30,16 @@ var Events = require('./events');
  * @api public
  */
 
-var Cache = module.exports = function(o) {
-  Events.call(this);
-  this.cache = o || {};
-  this.cache.data = this.cache.data || {};
-  this.options = this.cache.options || {};
-};
+var Cache = Events.extend({
+  constructor: function(o) {
+    Cache.__super__.constructor.call(this);
+    this.cache = o || {};
+    this.cache.data = this.cache.data || {};
+    this.options = this.cache.options || {};
+  }
+});
 
-util.inherits(Cache, Events);
-
+Cache.extend = Events.extend;
 
 /**
  * Set or get an option.
@@ -909,3 +910,5 @@ function typeOf(value) {
     .toLowerCase()
     .replace(/\[object ([\S]+)\]/, '$1');
 }
+
+module.exports = Cache;

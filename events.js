@@ -7,17 +7,23 @@
 
 'use strict';
 
-var util = require('util');
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
+var Base = require('class-extend');
 
-function Event() {
-  EventEmitter2.call(this, {
-    wildcard: true,
-    delimiter: ':',
-    newListener: false,
-    maxListeners: 0
-  });
-}
+// make sure the event emitter is setup for using the class-extend lib
+var Emitter = Base.extend(EventEmitter2.prototype);
+Emitter.extend = Base.extend;
 
-util.inherits(Event, EventEmitter2);
+var Event = Emitter.extend({
+  constructor: function () {
+    Event.__super__.constructor.call(this, {
+      wildcard: true,
+      delimiter: ':',
+      newListener: false,
+      maxListeners: 0
+    });
+  }
+});
+
+Event.extend = Emitter.extend;
 module.exports = Event;
