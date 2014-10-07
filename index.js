@@ -114,7 +114,7 @@ Cache.prototype.option = function(key, value) {
  * @param {String} `key`
  * @param {*} `value`
  * @param {Boolean} `expand` Resolve template strings with [expander]
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -252,7 +252,7 @@ Cache.prototype.disabled = function(key) {
  * ```
  *
  * @param {String} `key`
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -272,7 +272,7 @@ Cache.prototype.enable = function(key) {
  * ```
  *
  * @param {String} `key`
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -319,7 +319,7 @@ Cache.prototype.exists = function(key) {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -361,7 +361,7 @@ Cache.prototype.union = function(key) {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -408,7 +408,7 @@ Cache.prototype.defaults = function() {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -442,7 +442,7 @@ Cache.prototype.extend = function() {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -677,7 +677,7 @@ Cache.prototype.flattenData = function(data, name) {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -754,7 +754,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
 
   var o = {}, last;
 
-  // when the last arg is `true`...
+  // 1) when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
     last = args[len - 1];
     args = _.initial(args);
@@ -767,7 +767,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
 
   o = this.flattenData(o);
 
-  // ...process data with expander
+  // 2) process data with expander
   if (last) {
     o = this.process(o);
   }
@@ -800,7 +800,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
  *
  * @param {Object|Array|String} `values` Values to pass to plasma.
  * @param {Boolean} `process` If `true`,
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
@@ -845,7 +845,7 @@ Cache.prototype.data = function() {
 
 
 /**
- * Omit properties and their from the `cache`.
+ * Omit properties from the `cache`.
  *
  * **Example:**
  *
@@ -858,7 +858,7 @@ Cache.prototype.data = function() {
  * ```
  *
  * @chainable
- * @return {Cache} for chaining
+ * @return {Object} `Cache` to enable chaining
  * @api public
  */
 
