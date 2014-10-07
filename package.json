@@ -1,7 +1,7 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript cache methods.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
@@ -42,6 +42,7 @@
     "verb-tag-jscomments": "^0.2.0"
   },
   "dependencies": {
+    "class-extend": "^0.1.1",
     "eventemitter2": "^0.4.14",
     "expander": "^0.3.3",
     "getobject": "^0.1.0",
