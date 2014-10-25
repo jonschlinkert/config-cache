@@ -64,7 +64,8 @@ describe('config option', function() {
     });
   });
 
-  describe('option events', function () {
+  // events are disabled for options for the time being
+  describe.skip('option events', function () {
     var config = new Config();
 
     it('should emit `option` when a value is set', function () {

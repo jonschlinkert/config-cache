@@ -10,12 +10,14 @@
 var _ = require('lodash');
 var util = require('util');
 var typeOf = require('kind-of');
+var Options = require('option-cache');
 var namespaceData = require('namespace-data');
 var getobject = require('getobject');
 var expander = require('expander');
 var plasma = require('plasma');
-var expand = expander.process;
 var Events = require('./events');
+var expand = expander.process;
+var extend = _.extend;
 
 
 /**
@@ -36,46 +38,12 @@ var Cache = Events.extend({
     Cache.__super__.constructor.call(this);
     this.cache = o || {};
     this.cache.data = this.cache.data || {};
-    this.options = this.cache.options || {};
+    Options.call(this, this.cache.options);
   }
 });
 
 Cache.extend = Events.extend;
-
-/**
- * Set or get an option.
- *
- * ```js
- * cache.option('a', true)
- * cache.option('a')
- * // => true
- * ```
- *
- * @param {String} `key` The option name.
- * @param {*} `value` The value to set.
- * @return {*|Object} Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.
- * @api public
- */
-
-Cache.prototype.option = function(key, value) {
-  var args = [].slice.call(arguments);
-
-  if (args.length === 1 && typeof key === 'string') {
-    return this.options[key];
-  }
-
-  if (typeOf(key) === 'object') {
-    _.extend.apply(_, [this.options].concat(args));
-    this.emit('option', key, value);
-    return this;
-  }
-
-  this.options[key] = value;
-  this.emit('option', key, value);
-
-  return this;
-};
-
+extend(Cache.prototype, Options.prototype);
 
 /**
  * Assign `value` to `key` or return the value of `key`.
@@ -197,90 +165,6 @@ Cache.prototype.constant = function(key, value, namespace) {
 
   this[namespace].__defineGetter__(key, getter);
   return this;
-};
-
-
-/**
- * Check if `key` is enabled (truthy).
- *
- * ```js
- * cache.enabled('foo')
- * // => false
- *
- * cache.enable('foo')
- * cache.enabled('foo')
- * // => true
- * ```
- *
- * @param {String} `key`
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.enabled = function(key) {
-  return !!this.get(key);
-};
-
-
-/**
- * Check if `key` is disabled.
- *
- * ```js
- * cache.disabled('foo')
- * // => true
- *
- * cache.enable('foo')
- * cache.disabled('foo')
- * // => false
- * ```
- *
- * @param {String} `key`
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.disabled = function(key) {
-  return !this.get(key);
-};
-
-
-/**
- * Enable `key`.
- *
- * **Example**
- *
- * ```js
- * cache.enable('foo');
- * ```
- *
- * @param {String} `key`
- * @return {Object} `Cache` to enable chaining
- * @api public
- */
-
-Cache.prototype.enable = function(key) {
-  this.emit('enable');
-  return this.set(key, true);
-};
-
-
-/**
- * Disable `key`.
- *
- * **Example**
- *
- * ```js
- * cache.disable('foo');
- * ```
- *
- * @param {String} `key`
- * @return {Object} `Cache` to enable chaining
- * @api public
- */
-
-Cache.prototype.disable = function(key) {
-  this.emit('disable');
-  return this.set(key, false);
 };
 
 
@@ -419,13 +303,13 @@ Cache.prototype.extend = function() {
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = _.extend.apply(_, [o].concat(_.rest(args)));
+    o = extend.apply(_, [o].concat(_.rest(args)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
 
-  _.extend.apply(_, [this.cache].concat(args));
+  extend.apply(_, [this.cache].concat(args));
   this.emit('extend');
   return this;
 };
@@ -564,7 +448,7 @@ Cache.prototype.process = function(lookup, context) {
   } else {
     context = context || this.cache.data;
     if (typeOf(lookup) === 'object') {
-      context = _.extend({}, context, lookup);
+      context = extend({}, context, lookup);
     }
   }
 
@@ -574,7 +458,7 @@ Cache.prototype.process = function(lookup, context) {
   });
 
   if (!args.length) {
-    _.extend(this.cache.data, o);
+    extend(this.cache.data, o);
   }
 
   return o;
@@ -598,7 +482,7 @@ Cache.prototype.flattenData = function(data, name) {
   name = !Array.isArray(name) ? [name] : name;
   name.forEach(function (prop) {
     if (data && data.hasOwnProperty(prop)) {
-      _.extend(data, data[prop]);
+      extend(data, data[prop]);
       delete data[prop];
     }
   });
@@ -705,8 +589,8 @@ Cache.prototype.namespace = function(namespace, data, context) {
   }
 
   // Shallow clone `cache.data` to pass as context to namespace-data
-  var ctx = _.extend({}, this.cache.data, context);
-  _.extend(o, namespaceData(namespace, data, ctx));
+  var ctx = extend({}, this.cache.data, context);
+  extend(o, namespaceData(namespace, data, ctx));
 
   o = this.flattenData(o);
 
@@ -763,7 +647,7 @@ Cache.prototype.data = function() {
     args = _.initial(args);
   }
 
-  _.extend(o, plasma.apply(plasma, args));
+  extend(o, plasma.apply(plasma, args));
   o = this.flattenData(o);
 
   // 2) process data with expander

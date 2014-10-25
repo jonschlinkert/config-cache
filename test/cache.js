@@ -263,7 +263,8 @@ describe('Cache', function () {
         called.should.be.true;
       });
 
-      it('should emit `enabled` when a value is enabled', function () {
+      // events are currently disabled on options
+      it.skip('should emit `enabled` when a value is enabled', function () {
         var config = new Cache();
         var called = false;
 
@@ -277,7 +278,8 @@ describe('Cache', function () {
         called.should.be.true;
       });
 
-      it('should emit `disable` when items on the cache are disabled.', function () {
+      // events are currently disabled on options
+      it.skip('should emit `disable` when items on the cache are disabled.', function () {
         var called = false;
         var config = new Cache();
 
