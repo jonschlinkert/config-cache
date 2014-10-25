@@ -18,43 +18,54 @@ describe('config get/set', function () {
     config.clear();
   });
 
-  describe('.enable()', function () {
+  describe('.enable/enabled()', function () {
     it('should set the value to true', function () {
-      config.enable('foo').should.equal(config);
-      config.get('foo').should.be.ok;
+      config.enable('foo');
+      config.enabled('foo').should.be.true;
     });
-  });
 
-  describe('.enabled()', function () {
+    it('should return `this`', function () {
+      config.enable('foo').should.equal(config);
+    });
+
     it('should default to false', function () {
       config.enabled('xyz').should.be.false;
     });
 
     it('should return true when set', function () {
-      config.set('a', 'b');
-      config.enabled('a').should.be.ok;
+      config.enable('a');
+      config.enabled('a').should.be.true;
     });
 
-    it('should return true when set', function () {
-      config.set('a', false);
+    it('should return `false` when set to `false` as an option.', function () {
+      config.option('a', false);
       config.enabled('a').should.be.false;
     });
-  });
 
-  describe('.disable()', function () {
-    it('should set the value to false', function () {
-      config.disable('foo').should.equal(config);
-      config.get('foo').should.be.false;
+    it('should return true when set as an option.', function () {
+      config.option('a', true);
+      config.enabled('a').should.be.true;
     });
   });
-  describe('.disabled()', function () {
+
+  describe('.disable/disabled()', function () {
+    it('should set the value to false', function () {
+      config.disable('foo');
+      config.disabled('foo').should.be.true;
+      config.enabled('foo').should.be.false;
+    });
+
+    it('should return `this`', function () {
+      config.disable('foo').should.eql(config);
+    });
+
     it('should default to true', function () {
-      config.disabled('xyz').should.be.ok;
+      config.disabled('xyz').should.be.true;
     });
 
     it('should return false when set', function () {
-      config.set('abc', 'xyz');
-      config.disabled('abc').should.be.false;
+      config.disable('abc');
+      config.disabled('abc').should.be.true;
     });
   });
 });
