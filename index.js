@@ -9,6 +9,7 @@
 
 var _ = require('lodash');
 var util = require('util');
+var typeOf = require('kind-of');
 var namespaceData = require('namespace-data');
 var getobject = require('getobject');
 var expander = require('expander');
@@ -534,65 +535,6 @@ Cache.prototype.methods = function(o) {
 
 
 /**
- * Call `fn` on each property in `this.cache`.
- *
- * ```js
- * cache.each(fn, obj);
- * ```
- *
- * @param  {Function} `fn`
- * @param  {Object} `obj` Optionally pass an object to iterate over.
- * @return {Object} Resulting object.
- * @api public
- */
-
-Cache.prototype.each = function(fn, o) {
-  o = o || this.cache;
-  for (var key in o) {
-    if (this.hasOwn(key)) {
-      fn(key, o[key]);
-    }
-  }
-  return o;
-};
-
-
-/**
- * Traverse each _own property_ of `this.cache` or the given object,
- * recursively calling `fn` on child objects.
- *
- * ```js
- * cache.visit(obj, fn);
- * ```
- *
- * @param {Object|Function} `obj` Optionally pass an object.
- * @param {Function} `fn`
- * @return {Object} Return the resulting object.
- * @api public
- */
-
-Cache.prototype.visit = function(o, fn) {
-  var cloned = {};
-  if (arguments.length === 1) {
-    fn = o;
-    o = this.cache;
-  }
-  o = o || this.cache;
-  for (var key in o) {
-    if (this.hasOwn(key, o)) {
-      var child = o[key];
-      fn.call(this, key, child);
-      if (child != null && typeOf(child) === 'object') {
-        child = this.visit(child, fn);
-      }
-      cloned[key] = child;
-    }
-  }
-  return cloned;
-};
-
-
-/**
  * # Data
  *
  * > Methods for reading data files, processing template strings and
@@ -815,7 +757,7 @@ Cache.prototype.data = function() {
 
   var o = {}, last;
 
-  // when the last arg is `true`...
+  // 1) when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
     last = args[len - 1];
     args = _.initial(args);
@@ -824,7 +766,7 @@ Cache.prototype.data = function() {
   _.extend(o, plasma.apply(plasma, args));
   o = this.flattenData(o);
 
-  // ...process data with expander
+  // 2) process data with expander
   if (last) {
     this.extendData(this.process(o));
     return this;
@@ -898,17 +840,7 @@ Cache.prototype.clear = function(key) {
 
 
 /**
- * Return a string indicating the type of the
- * given value.
- *
- * @param {*} `value`
- * @api private
+ * Expose `Cache`
  */
-
-function typeOf(value) {
-  return Object.prototype.toString.call(value)
-    .toLowerCase()
-    .replace(/\[object ([\S]+)\]/, '$1');
-}
 
 module.exports = Cache;

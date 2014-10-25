@@ -46,6 +46,7 @@
     "eventemitter2": "^0.4.14",
     "expander": "^0.3.3",
     "getobject": "^0.1.0",
+    "kind-of": "^0.1.1",
     "lodash": "^2.4.1",
     "namespace-data": "^0.1.0",
     "plasma": "^0.4.0"
