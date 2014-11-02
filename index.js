@@ -8,12 +8,13 @@
 'use strict';
 
 var _ = require('lodash');
-var util = require('util');
 var typeOf = require('kind-of');
+var expander = require('expander');
 var Options = require('option-cache');
 var namespaceData = require('namespace-data');
-var getobject = require('getobject');
-var expander = require('expander');
+var slice = require('array-slice');
+var set = require('set-object');
+var get = require('get-value');
 var plasma = require('plasma');
 var Events = require('./events');
 var expand = expander.process;
@@ -99,18 +100,17 @@ Cache.prototype.set = function(key, value, expand) {
     value = this.process(value, this.cache);
     this.set(key, value, false);
   } else {
-    getobject.set(this.cache, key, value);
+    set(this.cache, key, value);
   }
 
   this.emit('set', key, value);
   return this;
 };
 
-
 /**
  * Return the stored value of `key`. If the value
  * does **not** exist on the cache, you may pass
- * `true` as a second parameter to tell [getobject]
+ * `true` as a second parameter to tell [set-object]
  * to initialize the value as an empty object.
  *
  * ```js
@@ -129,9 +129,15 @@ Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
   }
-  return getobject.get(this.cache, key, create);
+  var val = get(this.cache, key, true);
+  if (val == null) {
+    if (create) {
+      set(this.cache, key, true);
+      return this.cache[key];
+    }
+  }
+  return val;
 };
-
 
 /**
  * Set a constant on the cache.
@@ -167,7 +173,6 @@ Cache.prototype.constant = function(key, value, namespace) {
   return this;
 };
 
-
 /*
  * Return `true` if the element exists. Dot notation
  * may be used for nested properties.
@@ -185,9 +190,11 @@ Cache.prototype.constant = function(key, value, namespace) {
  */
 
 Cache.prototype.exists = function(key) {
-  return getobject.exists(this.cache, key);
+  if (this.hasOwn(key)) {
+    return true;
+  }
+  return Boolean(get(this.cache, key, true));
 };
-
 
 /**
  * Add values to an array on the `cache`. This method
@@ -210,7 +217,7 @@ Cache.prototype.exists = function(key) {
  */
 
 Cache.prototype.union = function(key) {
-  var args = [].slice.call(arguments, 1);
+  var args = slice(arguments, 1);
   var arr = this.get(key) || [];
 
   if (!Array.isArray(arr)) {
@@ -220,7 +227,6 @@ Cache.prototype.union = function(key) {
   this.set(key, _.union.apply(_, [arr].concat(args)));
   return this;
 };
-
 
 /**
  * Extend the `cache` with the given object.
@@ -252,7 +258,7 @@ Cache.prototype.union = function(key) {
  */
 
 Cache.prototype.defaults = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
@@ -267,7 +273,6 @@ Cache.prototype.defaults = function() {
 
   return this;
 };
-
 
 /**
  * Extend the `cache` with the given object.
@@ -299,7 +304,7 @@ Cache.prototype.defaults = function() {
  */
 
 Cache.prototype.extend = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
@@ -313,7 +318,6 @@ Cache.prototype.extend = function() {
   this.emit('extend');
   return this;
 };
-
 
 /**
  * Extend the cache with the given object.
@@ -333,7 +337,7 @@ Cache.prototype.extend = function() {
  */
 
 Cache.prototype.merge = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
     o = _.merge.apply(_, [o].concat(_.rest(args)));
@@ -345,7 +349,6 @@ Cache.prototype.merge = function() {
   this.emit('merge');
   return this;
 };
-
 
 /**
  * Return the keys on `this.cache`.
@@ -361,7 +364,6 @@ Cache.prototype.merge = function() {
 Cache.prototype.keys = function() {
   return Object.keys(this.cache);
 };
-
 
 /**
  * Return true if `key` is an own, enumerable property
@@ -381,7 +383,6 @@ Cache.prototype.hasOwn = function(key, o) {
   return {}.hasOwnProperty.call(o || this.cache, key);
 };
 
-
 /**
  * Clone the given `obj` or `cache`.
  *
@@ -397,7 +398,6 @@ Cache.prototype.hasOwn = function(key, o) {
 Cache.prototype.clone = function(o) {
   return _.cloneDeep(o || this.cache);
 };
-
 
 /**
  * Return methods on `this.cache` or the given `obj`.
@@ -416,7 +416,6 @@ Cache.prototype.methods = function(o) {
   o = o || this.cache;
   return _.pick(o, _.methods(o));
 };
-
 
 /**
  * # Data
@@ -441,7 +440,7 @@ Cache.prototype.methods = function(o) {
  */
 
 Cache.prototype.process = function(lookup, context) {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
 
   if (!args.length) {
     lookup = context = this.cache.data;
@@ -463,7 +462,6 @@ Cache.prototype.process = function(lookup, context) {
 
   return o;
 };
-
 
 /**
  * If a `data` property is on the given `data` object
@@ -490,7 +488,6 @@ Cache.prototype.flattenData = function(data, name) {
   return data;
 };
 
-
 /**
  * Extend the `cache.data` object with the given data. This
  * method is chainable.
@@ -509,7 +506,7 @@ Cache.prototype.flattenData = function(data, name) {
  */
 
 Cache.prototype.extendData = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
 
   if (typeof args[0] === 'string') {
     this.extend.apply(this, ['data.' + args[0]].concat(_.rest(args)));
@@ -522,7 +519,6 @@ Cache.prototype.extendData = function() {
 
   return this;
 };
-
 
 /**
  * Extend the `data` object with the value returned by [plasma].
@@ -543,10 +539,9 @@ Cache.prototype.extendData = function() {
  */
 
 Cache.prototype.plasma = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
   return plasma.apply(this, args);
 };
-
 
 /**
  * Expects file path(s) or glob pattern(s) to any JSON or YAML files to
@@ -576,7 +571,7 @@ Cache.prototype.plasma = function() {
  */
 
 Cache.prototype.namespace = function(namespace, data, context) {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
   var len = args.length;
 
   var o = {}, last;
@@ -601,7 +596,6 @@ Cache.prototype.namespace = function(namespace, data, context) {
 
   return this.extendData(o);
 };
-
 
 /**
  * Extend the `cache.data` object with data from a JSON
@@ -632,7 +626,7 @@ Cache.prototype.namespace = function(namespace, data, context) {
  */
 
 Cache.prototype.data = function() {
-  var args = [].slice.call(arguments);
+  var args = slice(arguments);
   var len = args.length;
 
   if (!len) {
@@ -659,7 +653,6 @@ Cache.prototype.data = function() {
   this.extendData(o);
   return this;
 };
-
 
 /**
  * # Clearing the cache
@@ -689,14 +682,33 @@ Cache.prototype.data = function() {
  * @api public
  */
 
-Cache.prototype.omit = function() {
-  var args = [].slice.call(arguments);
-  this.cache = _.omit.apply(_, [this.cache].concat(args));
+Cache.prototype.omit = function(keys) {
+  if (keys == null) {
+    return this;
+  }
+
+  var args = slice(arguments);
+  var len = args.length;
+  var omit = [];
+  var i = 0;
+
+  while (len--) {
+    omit = omit.concat(args[i++]);
+  }
+
+  var o = {};
+
+  for (var key in this.cache) {
+    if (this.hasOwn(this.cache, key) && omit.indexOf(key) === -1) {
+      o[key] = this.cache[key];
+    }
+  }
+
+  this.cache = o;
 
   this.emit('omit');
   return this;
 };
-
 
 /**
  * Remove `key` from the cache, or if no value is
@@ -721,7 +733,6 @@ Cache.prototype.clear = function(key) {
     this.emit('clear');
   }
 };
-
 
 /**
  * Expose `Cache`

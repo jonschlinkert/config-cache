@@ -7,13 +7,16 @@
 
 'use strict';
 
-var assert = require('assert');
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 
 describe('config omit', function () {
+  beforeEach(function () {
+    config = new Config();
+  });
+
   describe('.omit()', function () {
 
     it('should omit a value from the cache', function () {
@@ -24,7 +27,7 @@ describe('config omit', function () {
       config.omit('a');
 
       // property should not be on the cache
-      assert(config.get('a') === undefined);
+      (config.get('a') == null).should.be.true;
     });
 
     it('should omit an array of values from the cache', function () {
@@ -43,10 +46,10 @@ describe('config omit', function () {
       config.omit(['a', 'b', 'c', 'd']);
 
       // properties should not be on the cache
-      assert(config.get('a') === undefined);
-      assert(config.get('b') === undefined);
-      assert(config.get('c') === undefined);
-      assert(config.get('d') === undefined);
+      (config.get('a') == null).should.be.true;
+      (config.get('b') == null).should.be.true;
+      (config.get('c') == null).should.be.true;
+      (config.get('d') == null).should.be.true;
     });
 
   });

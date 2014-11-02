@@ -10,15 +10,52 @@
 var assert = require('assert');
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 
 describe('config get/set', function () {
-  afterEach(function() {
-    config.clear();
+  beforeEach(function() {
+    config = new Config();
   });
 
-  describe('.set()', function () {
+  describe('set()/get():', function () {
+    it('should return immediate property value.', function() {
+      config.set('a', 1);
+      config.get('a').should.equal(1)
+    });
+    it('should return nested property value.', function() {
+      config.set('b.c.d', 1);
+      config.get('b.c.d').should.equal(1);
+    });
+    it('should set property value.', function() {
+      config.set('b.c.d', 1);
+      config.cache.b.c.d.should.equal(1);
+    });
+    it('literal backslash should escape period in property name.', function() {
+      config.set('e\\.f\\.g', 1);
+      config.get('e\\.f\\.g').should.equal(1);
+      config.cache['e.f.g'].should.equal(1);
+    });
+  });
+
+  describe('set() - add:', function () {
+    it('should set a new property with the given value', function () {
+      config.set('one', 1);
+      config.get('one').should.equal(1);
+    });
+  });
+
+  describe('set() - update:', function () {
+    it('should update an existing property with the given value', function () {
+      config.set('one', 2);
+      config.get('one').should.equal(2);
+    });
+
+    it('should get the given property', function () {
+      config.set('a', 'b');
+      config.get('a').should.eql('b');
+    });
+
     it('should set a value', function () {
       config.set('a', 'b');
       config.get('a').should.equal('b');
@@ -76,7 +113,7 @@ describe('config get/set', function () {
 
   describe('.get()', function () {
     it('should return undefined when no set', function () {
-      assert(config.get('a') === undefined);
+      (config.get('a') == null).should.be.true;
     });
 
     it('should otherwise return the value', function () {

@@ -17,7 +17,7 @@ var config = new Config();
 ```
 
 ## API
-### [Cache](index.js#L33)
+### [Cache](index.js#L37)
 
 Initialize a new `Cache`
 
@@ -27,28 +27,14 @@ Initialize a new `Cache`
 var cache = new Cache();
 ```
 
-### [.option](index.js#L58)
-
-Set or get an option.
-
-* `key` **{String}**: The option name.    
-* `value` **{*}**: The value to set.    
-* `returns` **{*|Object}**: Returns `value` if `key` is supplied, or `Cache` for chaining when an option is set.  
-
-```js
-cache.option('a', true)
-cache.option('a')
-// => true
-```
-
-### [.set](index.js#L121)
+### [.set](index.js#L92)
 
 Assign `value` to `key` or return the value of `key`.
 
 * `key` **{String}**    
 * `value` **{*}**    
 * `expand` **{Boolean}**: Resolve template strings with [expander]    
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 ```js
 cache.set(key, value);
@@ -82,9 +68,9 @@ Visit the [expander] docs for more info.
 [expander]: https://github.com/tkellen/expander
 [getobject]: https://github.com/cowboy/node-getobject
 
-### [.get](index.js#L158)
+### [.get](index.js#L128)
 
-Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [getobject] to initialize the value as an empty object.
+Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [set-object] to initialize the value as an empty object.
 
 * `key` **{*}**    
 * `create` **{Boolean}**    
@@ -96,7 +82,7 @@ cache.get('foo');
 // => "bar"
 ```
 
-### [.constant](index.js#L181)
+### [.constant](index.js#L157)
 
 Set a constant on the cache.
 
@@ -109,69 +95,25 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.enabled](index.js#L218)
+### [.exists](index.js#L192)
 
-Check if `key` is enabled (truthy).
-
-* `key` **{String}**    
-* `returns`: {Boolean}  
-
-```js
-cache.enabled('foo')
-// => false
-
-cache.enable('foo')
-cache.enabled('foo')
-// => true
-```
-
-### [.disabled](index.js#L240)
-
-Check if `key` is disabled.
+Return `true` if the element exists. Dot notation may be used for nested properties.
 
 * `key` **{String}**    
 * `returns`: {Boolean}  
 
-```js
-cache.disabled('foo')
-// => true
-
-cache.enable('foo')
-cache.disabled('foo')
-// => false
-```
-
-### [.enable](index.js#L259)
-
-Enable `key`.
-
-* `key` **{String}**    
-* `returns` **{Cache}**: for chaining  
-
 **Example**
 
 ```js
-cache.enable('foo');
+cache.exists('author.name');
+//=> true
 ```
 
-### [.disable](index.js#L279)
-
-Disable `key`.
-
-* `key` **{String}**    
-* `returns` **{Cache}**: for chaining  
-
-**Example**
-
-```js
-cache.disable('foo');
-```
-
-### [.union](index.js#L326)
+### [.union](index.js#L219)
 
 Add values to an array on the `cache`. This method is chainable.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example**
 
@@ -184,11 +126,11 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.defaults](index.js#L368)
+### [.defaults](index.js#L260)
 
 Extend the `cache` with the given object. This method is chainable.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example**
 
@@ -210,11 +152,11 @@ cache
   .defaults('a.b.c', {fez: 'bang'});
 ```
 
-### [.extend](index.js#L415)
+### [.extend](index.js#L306)
 
 Extend the `cache` with the given object. This method is chainable.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example**
 
@@ -236,11 +178,11 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.merge](index.js#L449)
+### [.merge](index.js#L339)
 
 Extend the cache with the given object. This method is chainable.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example**
 
@@ -250,7 +192,7 @@ cache
   .merge({fez: 'bang'});
 ```
 
-### [.keys](index.js#L475)
+### [.keys](index.js#L364)
 
 Return the keys on `this.cache`.
 
@@ -260,7 +202,7 @@ Return the keys on `this.cache`.
 cache.keys();
 ```
 
-### [.hasOwn](index.js#L494)
+### [.hasOwn](index.js#L382)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -272,7 +214,7 @@ Return true if `key` is an own, enumerable property of `this.cache` or the given
 cache.hasOwn([key]);
 ```
 
-### [.clone](index.js#L511)
+### [.clone](index.js#L398)
 
 Clone the given `obj` or `cache`.
 
@@ -283,7 +225,7 @@ Clone the given `obj` or `cache`.
 cache.clone();
 ```
 
-### [.methods](index.js#L529)
+### [.methods](index.js#L415)
 
 Return methods on `this.cache` or the given `obj`.
 
@@ -295,31 +237,7 @@ cache.methods('foo')
 //=> ['set', 'get', 'enable', ...]
 ```
 
-### [.each](index.js#L548)
-
-Call `fn` on each property in `this.cache`.
-
-* `fn` **{Function}**    
-* `obj` **{Object}**: Optionally pass an object to iterate over.    
-* `returns` **{Object}**: Resulting object.  
-
-```js
-cache.each(fn, obj);
-```
-
-### [.visit](index.js#L573)
-
-Traverse each _own property_ of `this.cache` or the given object, recursively calling `fn` on child objects.
-
-* `obj` **{Object|Function}**: Optionally pass an object.    
-* `fn` **{Function}**    
-* `returns` **{Object}**: Return the resulting object.  
-
-```js
-cache.visit(obj, fn);
-```
-
-### [.Data](index.js#L616)
+### [.Data](index.js#L442)
 
 > Methods for reading data files, processing template strings and extending the `cache.data` object.
 
@@ -336,11 +254,11 @@ cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-### [.extendData](index.js#L684)
+### [.extendData](index.js#L508)
 
 Extend the `cache.data` object with the given data. This method is chainable.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example**
 
@@ -350,7 +268,7 @@ cache
   .extendData({fez: 'bang'});
 ```
 
-### [.plasma](index.js#L718)
+### [.plasma](index.js#L541)
 
 Extend the `data` object with the value returned by [plasma].
 
@@ -367,7 +285,7 @@ cache
 
 See the [plasma] documentation for all available options.
 
-### [.namespace](index.js#L751)
+### [.namespace](index.js#L573)
 
 Expects file path(s) or glob pattern(s) to any JSON or YAML files to be merged onto the data object. Any data files read in by the `.namespace()` method will extend the `data` object with an object named after the basename of each file.
 
@@ -390,13 +308,13 @@ The data from each file is namespaced using the name of the file:
 
 See the [plasma] documentation for all available options.
 
-### [.data](index.js#L807)
+### [.data](index.js#L628)
 
 Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
 * `values` **{Object|Array|String}**: Values to pass to plasma.    
 * `process` **{Boolean}**: If `true`,    
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 ```js
 cache
@@ -415,17 +333,17 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-## [Clearing the cache](index.js#L846)
+## [Clearing the cache](index.js#L666)
 
 
 > Methods for clearing the cache, removing or reseting specific
 values on the cache.
 
-### [.omit](index.js#L865)
+### [.omit](index.js#L685)
 
-Omit properties and their from the `cache`.
+Omit properties from the `cache`.
 
-* `returns` **{Cache}**: for chaining  
+* `returns` **{Object}** `Cache`: to enable chaining  
 
 **Example:**
 
@@ -437,7 +355,7 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L888)
+### [.clear](index.js#L727)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
@@ -466,6 +384,6 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on August 27, 2014._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on November 01, 2014._
 
 [plasma]: https://github.com/jonschlinkert/plasma
