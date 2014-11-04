@@ -1,7 +1,7 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript cache methods.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
