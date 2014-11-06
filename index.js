@@ -722,7 +722,7 @@ Cache.prototype.omit = function(keys) {
   var o = {};
 
   for (var key in this.cache) {
-    if (this.hasOwn(this.cache, key) && omit.indexOf(key) === -1) {
+    if (this.hasOwn(key, this.cache) && omit.indexOf(key) === -1) {
       o[key] = this.cache[key];
     }
   }
