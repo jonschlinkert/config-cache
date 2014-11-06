@@ -117,6 +117,11 @@ Cache.prototype.set = function(key, value, expand) {
  * cache.set('foo', 'bar');
  * cache.get('foo');
  * // => "bar"
+ *
+ * // also takes an array or list of property paths
+ * cache.set({data: {name: 'Jon'}})
+ * cache.get('data', 'name');
+ * //=> 'Jon'
  * ```
  *
  * @param {*} `key`
@@ -129,10 +134,22 @@ Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
   }
-  var val = get(this.cache, key, true);
+
+  var args = slice(arguments);
+  var last = args[args.length - 1];
+  if (typeOf(last) === 'boolean') {
+    create = last;
+    args.pop();
+  }
+
+  if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
+    key = _.flatten(args).join('.');
+  }
+
+  var val = get(this.cache, key, create);
   if (val == null) {
     if (create) {
-      set(this.cache, key, true);
+      set(this.cache, key, create);
       return this.cache[key];
     }
   }
@@ -417,12 +434,18 @@ Cache.prototype.methods = function(o) {
   return _.pick(o, _.methods(o));
 };
 
+
 /**
- * # Data
+ * # Data methods
  *
  * > Methods for reading data files, processing template strings and
  * extending the `cache.data` object.
  *
+ * @api public
+ */
+
+
+/**
  * Use [expander] to recursively expand template strings into
  * their resolved values.
  *

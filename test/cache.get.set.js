@@ -33,7 +33,7 @@ describe('config get/set', function () {
     });
     it('literal backslash should escape period in property name.', function() {
       config.set('e\\.f\\.g', 1);
-      config.get('e\\.f\\.g').should.equal(1);
+      config.get('e\\.f\\.g', true).should.equal(1);
       config.cache['e.f.g'].should.equal(1);
     });
   });

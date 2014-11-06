@@ -1,6 +1,6 @@
 # config-cache [![NPM version](https://badge.fury.io/js/config-cache.png)](http://badge.fury.io/js/config-cache)
 
-> General purpose JavaScript cache methods.
+> General purpose JavaScript object storage methods.
 
 ## Install
 #### Install with [npm](npmjs.org):
@@ -68,7 +68,7 @@ Visit the [expander] docs for more info.
 [expander]: https://github.com/tkellen/expander
 [getobject]: https://github.com/cowboy/node-getobject
 
-### [.get](index.js#L128)
+### [.get](index.js#L133)
 
 Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [set-object] to initialize the value as an empty object.
 
@@ -80,9 +80,14 @@ Return the stored value of `key`. If the value does **not** exist on the cache, 
 cache.set('foo', 'bar');
 cache.get('foo');
 // => "bar"
+
+// also takes an array or list of property paths
+cache.set({data: {name: 'Jon'}})
+cache.get('data', 'name');
+//=> 'Jon'
 ```
 
-### [.constant](index.js#L157)
+### [.constant](index.js#L174)
 
 Set a constant on the cache.
 
@@ -95,7 +100,7 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.exists](index.js#L192)
+### [.exists](index.js#L209)
 
 Return `true` if the element exists. Dot notation may be used for nested properties.
 
@@ -109,7 +114,7 @@ cache.exists('author.name');
 //=> true
 ```
 
-### [.union](index.js#L219)
+### [.union](index.js#L236)
 
 Add values to an array on the `cache`. This method is chainable.
 
@@ -126,7 +131,7 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.defaults](index.js#L260)
+### [.defaults](index.js#L277)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -152,7 +157,7 @@ cache
   .defaults('a.b.c', {fez: 'bang'});
 ```
 
-### [.extend](index.js#L306)
+### [.extend](index.js#L323)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -178,7 +183,7 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.merge](index.js#L339)
+### [.merge](index.js#L356)
 
 Extend the cache with the given object. This method is chainable.
 
@@ -192,7 +197,7 @@ cache
   .merge({fez: 'bang'});
 ```
 
-### [.keys](index.js#L364)
+### [.keys](index.js#L381)
 
 Return the keys on `this.cache`.
 
@@ -202,7 +207,7 @@ Return the keys on `this.cache`.
 cache.keys();
 ```
 
-### [.hasOwn](index.js#L382)
+### [.hasOwn](index.js#L399)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -214,7 +219,7 @@ Return true if `key` is an own, enumerable property of `this.cache` or the given
 cache.hasOwn([key]);
 ```
 
-### [.clone](index.js#L398)
+### [.clone](index.js#L415)
 
 Clone the given `obj` or `cache`.
 
@@ -225,7 +230,7 @@ Clone the given `obj` or `cache`.
 cache.clone();
 ```
 
-### [.methods](index.js#L415)
+### [.methods](index.js#L432)
 
 Return methods on `this.cache` or the given `obj`.
 
@@ -237,15 +242,18 @@ cache.methods('foo')
 //=> ['set', 'get', 'enable', ...]
 ```
 
-### [.Data](index.js#L442)
+### [Data methods](index.js#L447)
 
-> Methods for reading data files, processing template strings and extending the `cache.data` object.
+
+> Methods for reading data files, processing template strings and
+extending the `cache.data` object.
+
+### [.process](index.js#L465)
+
+Use [expander] to recursively expand template strings into their resolved values.
 
 * `lookup` **{*}**: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.    
 * `opts` **{*}**: Options to pass to Lo-Dash `_.template`.    
-
-Use [expander] to recursively expand template strings into
-their resolved values.
 
 **Example**
 
@@ -254,7 +262,7 @@ cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-### [.extendData](index.js#L508)
+### [.extendData](index.js#L531)
 
 Extend the `cache.data` object with the given data. This method is chainable.
 
@@ -268,7 +276,7 @@ cache
   .extendData({fez: 'bang'});
 ```
 
-### [.plasma](index.js#L541)
+### [.plasma](index.js#L564)
 
 Extend the `data` object with the value returned by [plasma].
 
@@ -285,7 +293,7 @@ cache
 
 See the [plasma] documentation for all available options.
 
-### [.namespace](index.js#L573)
+### [.namespace](index.js#L596)
 
 Expects file path(s) or glob pattern(s) to any JSON or YAML files to be merged onto the data object. Any data files read in by the `.namespace()` method will extend the `data` object with an object named after the basename of each file.
 
@@ -308,7 +316,7 @@ The data from each file is namespaced using the name of the file:
 
 See the [plasma] documentation for all available options.
 
-### [.data](index.js#L628)
+### [.data](index.js#L651)
 
 Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
@@ -333,13 +341,13 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-## [Clearing the cache](index.js#L666)
+## [Clearing the cache](index.js#L689)
 
 
 > Methods for clearing the cache, removing or reseting specific
 values on the cache.
 
-### [.omit](index.js#L685)
+### [.omit](index.js#L708)
 
 Omit properties from the `cache`.
 
@@ -355,7 +363,7 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L727)
+### [.clear](index.js#L750)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
@@ -384,6 +392,6 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on November 01, 2014._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on November 06, 2014._
 
 [plasma]: https://github.com/jonschlinkert/plasma

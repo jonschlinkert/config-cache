@@ -26,6 +26,10 @@ describe('.get()', function () {
     });
     it('should get nested properties.', function() {
       config.get('a.b').should.eql(obj.a.b);
+      config.get('a', 'b').should.eql(obj.a.b);
+      config.get(['a', 'b']).should.eql(obj.a.b);
+      config.get(['a.b']).should.eql(obj.a.b);
+      config.get(['a.b']).should.eql(obj.a.b);
     });
     it('should return undefined for nonexistent properties.', function() {
       (typeof config.get('a.x')).should.be.undefined;
@@ -44,7 +48,9 @@ describe('.get()', function () {
       (typeof config.get('a.b.f')).should.be.undefined;
     });
     it('literal backslash should escape period in property name.', function() {
-      config.get('a.b.g\\.h\\.i').should.equal(2);
+      config.get('a.b.g\\.h\\.i', true).should.equal(2);
+      config.get(['a', 'b', 'g\\.h\\.i'], true).should.equal(2);
+      config.get('a', 'b', 'g\\.h\\.i', true).should.equal(2);
     });
     it('should just return existing properties.', function() {
       config.get('a', true).should.eql(config.cache.a);
