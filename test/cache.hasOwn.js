@@ -10,12 +10,12 @@
 var assert = require('assert');
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 
 describe('config hasOwnProperty', function () {
   afterEach(function() {
-    config.clear();
+    config = new Config();
   });
 
   describe('.hasOwn()', function () {

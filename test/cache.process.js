@@ -10,12 +10,12 @@
 var assert = require('assert');
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 
-describe('config process', function () {
+describe.skip('config process', function () {
   beforeEach(function() {
-    config.clear();
+    config = new Config();
     config.omit('abcdefghijklmnopqrstuvwxyz'.split(''));
   });
 

@@ -9,11 +9,11 @@
 
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 describe('config data', function() {
   beforeEach(function() {
-    config.clear();
+    config = new Config();
   });
 
   describe('.flattenData()', function() {

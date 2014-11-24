@@ -9,7 +9,7 @@
 
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 var _ = require('lodash');
 
 describe('config option', function() {

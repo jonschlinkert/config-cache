@@ -53,9 +53,7 @@
     "get-value": "^0.3.2",
     "kind-of": "^0.1.1",
     "lodash": "^2.4.1",
-    "namespace-data": "^0.1.0",
     "option-cache": "^0.1.2",
-    "plasma": "^0.4.0",
     "set-object": "^0.1.0"
   }
 }

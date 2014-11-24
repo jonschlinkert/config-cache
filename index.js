@@ -11,15 +11,14 @@ var _ = require('lodash');
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
-var namespaceData = require('namespace-data');
 var slice = require('array-slice');
 var set = require('set-object');
 var get = require('get-value');
-var plasma = require('plasma');
+var Plasma = require('plasma');
+var plasma = new Plasma();
 var Events = require('./events');
 var expand = expander.process;
 var extend = _.extend;
-
 
 /**
  * Initialize a new `Cache`
@@ -146,7 +145,13 @@ Cache.prototype.get = function(key, create) {
     key = _.flatten(args).join('.');
   }
 
-  var val = get(this.cache, key, create);
+  var val;
+  if (/\./.test(key)) {
+    val = get(this.cache, key, create);
+  } else {
+    val = this.cache[key];
+  }
+
   if (val == null) {
     if (create) {
       set(this.cache, key, create);
@@ -378,8 +383,8 @@ Cache.prototype.merge = function() {
  * @api public
  */
 
-Cache.prototype.keys = function() {
-  return Object.keys(this.cache);
+Cache.prototype.keys = function(o) {
+  return Object.keys(o || this.cache);
 };
 
 /**
@@ -563,61 +568,7 @@ Cache.prototype.extendData = function() {
 
 Cache.prototype.plasma = function() {
   var args = slice(arguments);
-  return plasma.apply(this, args);
-};
-
-/**
- * Expects file path(s) or glob pattern(s) to any JSON or YAML files to
- * be merged onto the data object. Any data files read in by the
- * `.namespace()` method will extend the `data` object with an object
- * named after the basename of each file.
- *
- * **Example**
- *
- * ```js
- * cache.namespace(['alert.json', 'nav*.json']);
- * ```
- * The data from each file is namespaced using the name of the file:
- *
- * ```js
- * {
- *   alert: {},
- *   navbar: {}
- * }
- * ```
- *
- * See the [plasma] documentation for all available options.
- *
- * @param {String|Array} `patterns` Filepaths or glob patterns.
- * @return {null}
- * @api public
- */
-
-Cache.prototype.namespace = function(namespace, data, context) {
-  var args = slice(arguments);
-  var len = args.length;
-
-  var o = {}, last;
-
-  // 1) when the last arg is `true`...
-  if (typeof args[len - 1] === 'boolean') {
-    last = args[len - 1];
-    args = _.initial(args);
-    context = {};
-  }
-
-  // Shallow clone `cache.data` to pass as context to namespace-data
-  var ctx = extend({}, this.cache.data, context);
-  extend(o, namespaceData(namespace, data, ctx));
-
-  o = this.flattenData(o);
-
-  // 2) process data with expander
-  if (last) {
-    o = this.process(o);
-  }
-
-  return this.extendData(o);
+  return plasma.load.apply(plasma, args);
 };
 
 /**
@@ -664,7 +615,7 @@ Cache.prototype.data = function() {
     args = _.initial(args);
   }
 
-  extend(o, plasma.apply(plasma, args));
+  extend(o, plasma.load.apply(plasma, args));
   o = this.flattenData(o);
 
   // 2) process data with expander

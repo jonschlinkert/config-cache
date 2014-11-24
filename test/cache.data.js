@@ -9,16 +9,14 @@
 
 var should = require('should');
 var Config = require('..');
+var config;
 
-
-describe('config data', function() {
-  var config = new Config();
+describe.only('config data', function() {
   beforeEach(function() {
-    config.clear();
+    config = new Config();
   });
 
   describe('.extendData()', function() {
-    var config = new Config();
     it('should extend the `data` object.', function() {
       config
         .extendData({x: 'x', y: 'y', z: 'z'})
@@ -50,7 +48,6 @@ describe('config data', function() {
   });
 
   describe('.flattenData()', function() {
-    var config = new Config();
     it('should merge the value of a nested `data` property onto the root of the given object.', function() {
       var root = config.flattenData({data: {x: 'x'}, y: 'y', z: 'z'});
       root.should.have.property('x');
@@ -70,7 +67,6 @@ describe('config data', function() {
   });
 
   describe('.plasma()', function() {
-    var config = new Config();
     it('should read JSON files and return an object.', function() {
       var data = config.plasma('package.json');
       data.name.should.equal('config-cache');
@@ -105,7 +101,6 @@ describe('config data', function() {
   });
 
   describe('.data()', function() {
-    var config = new Config();
     it('should set properties on the `data` object.', function() {
       config.set('data.foo', 'bar');
       config.get('data').foo.should.equal('bar');
@@ -114,6 +109,7 @@ describe('config data', function() {
 
     it('should read files and merge data onto `cache.data`', function() {
       config.data('package.json');
+      console.log(config.get('data.name'))
       config.get('data.name').should.equal('config-cache');
     });
 

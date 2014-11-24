@@ -10,12 +10,12 @@
 var assert = require('assert');
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 
 describe('config get/set', function () {
   afterEach(function() {
-    config.clear();
+    config = new Config();
   });
 
   describe('.enable/enabled()', function () {

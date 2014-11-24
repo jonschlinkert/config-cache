@@ -9,9 +9,13 @@
 
 var should = require('should');
 var Config = require('..');
-var config = new Config();
+var config;
 
 describe('config methods', function() {
+  beforeEach(function () {
+    config = new Config();
+  });
+
   describe('.methods()', function() {
     it('should be object.', function() {
       config.methods(config).should.be.an.object;
