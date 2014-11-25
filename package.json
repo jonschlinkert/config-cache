@@ -1,7 +1,7 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
@@ -20,6 +20,17 @@
       "url": "https://github.com/jonschlinkert/config-cache/blob/master/LICENSE-MIT"
     }
   ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "^4.0.4"
+  },
   "keywords": [
     "config",
     "hash",
@@ -31,29 +42,5 @@
     "storage",
     "data",
     "cache"
-  ],
-  "main": "index.js",
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "scripts": {
-    "test": "mocha -R spec"
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "should": "^4.0.4",
-    "verb": ">= 0.2.6",
-    "verb-tag-jscomments": "^0.2.0"
-  },
-  "dependencies": {
-    "array-slice": "^0.2.2",
-    "class-extend": "^0.1.1",
-    "eventemitter2": "^0.4.14",
-    "expander": "^0.3.3",
-    "get-value": "^0.3.2",
-    "kind-of": "^0.1.1",
-    "lodash": "^2.4.1",
-    "option-cache": "^0.1.2",
-    "set-object": "^0.1.0"
-  }
+  ]
 }
