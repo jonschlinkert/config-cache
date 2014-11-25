@@ -128,38 +128,57 @@ Cache.prototype.set = function(key, value, expand) {
  * @return {*}
  * @api public
  */
-
 Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
   }
 
-  var args = slice(arguments);
-  var last = args[args.length - 1];
-  if (typeOf(last) === 'boolean') {
-    create = last;
-    args.pop();
-  }
-
-  if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
-    key = _.flatten(args).join('.');
-  }
-
   var val;
-  if (/\./.test(key)) {
-    val = get(this.cache, key, create);
-  } else {
+  if (!/\./.test(key)) {
     val = this.cache[key];
+  } else {
+    val = get(this.cache, key, true);
   }
 
   if (val == null) {
     if (create) {
-      set(this.cache, key, create);
+      set(this.cache, key, true);
       return this.cache[key];
     }
   }
   return val;
 };
+// Cache.prototype.get = function(key, create) {
+//   if (!key) {
+//     return this.cache;
+//   }
+
+//   var args = slice(arguments);
+//   var last = args[args.length - 1];
+//   if (typeOf(last) === 'boolean') {
+//     create = last;
+//     args.pop();
+//   }
+
+//   if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
+//     key = _.flatten(args).join('.');
+//   }
+
+//   var val;
+//   if (/\./.test(key)) {
+//     val = get(this.cache, key, create);
+//   } else {
+//     val = this.cache[key];
+//   }
+
+//   if (val == null) {
+//     if (create) {
+//       set(this.cache, key, create);
+//       return this.cache[key];
+//     }
+//   }
+//   return val;
+// };
 
 /**
  * Set a constant on the cache.

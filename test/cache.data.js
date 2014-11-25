@@ -69,29 +69,29 @@ describe.only('config data', function() {
   describe('.plasma()', function() {
     it('should read JSON files and return an object.', function() {
       var data = config.plasma('package.json');
-      data.name.should.equal('config-cache');
+      data.package.name.should.equal('config-cache');
     });
 
     it('should read YAML files and return an object.', function() {
       var data = config.plasma('test/fixtures/a.yml');
-      data.a.should.equal('b');
+      data.should.have.property('a', {a: 'b'});
     });
 
     it('should read an array of YAML and JSON files and return an object.', function() {
       var data = config.plasma(['package.json', 'test/fixtures/a.yml']);
-      data.name.should.equal('config-cache');
-      data.a.should.equal('b');
+      data.package.name.should.equal('config-cache');
+      data.should.have.property('a', {a: 'b'});
     });
 
     it('should expand a glob pattern, read JSON/YAML files and return an object.', function() {
       var data = config.plasma('p*.json');
-      data.name.should.equal('config-cache');
+      data.package.name.should.equal('config-cache');
     });
 
     it('should expand an array of glob patterns, read the JSON/YAML files and return an object.', function() {
       var data = config.plasma(['p*.json', 'test/fixtures/*.yml']);
-      data.name.should.equal('config-cache');
-      data.a.should.equal('b');
+      data.package.name.should.equal('config-cache');
+      data.should.have.property('a', {a: 'b'});
     });
 
     it('should accept an object and return an object.', function() {
@@ -109,8 +109,7 @@ describe.only('config data', function() {
 
     it('should read files and merge data onto `cache.data`', function() {
       config.data('package.json');
-      console.log(config.get('data.name'))
-      config.get('data.name').should.equal('config-cache');
+      config.get('data.package.name').should.equal('config-cache');
     });
 
     it('should read files and merge data onto `cache.data`', function() {
