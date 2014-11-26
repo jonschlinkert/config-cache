@@ -15,7 +15,6 @@ var slice = require('array-slice');
 var set = require('set-object');
 var get = require('get-value');
 var Plasma = require('plasma');
-var plasma = new Plasma();
 var Events = require('./events');
 var expand = expander.process;
 var extend = _.extend;
@@ -39,6 +38,7 @@ var Cache = Events.extend({
     this.cache = o || {};
     this.cache.data = this.cache.data || {};
     Options.call(this, this.cache.options);
+    this._plasma = new Plasma();
   }
 });
 
@@ -587,7 +587,7 @@ Cache.prototype.extendData = function() {
 
 Cache.prototype.plasma = function() {
   var args = slice(arguments);
-  return plasma.load.apply(plasma, args);
+  return this._plasma.load.apply(this._plasma, args);
 };
 
 /**
@@ -634,7 +634,7 @@ Cache.prototype.data = function() {
     args = _.initial(args);
   }
 
-  extend(o, plasma.load.apply(plasma, args));
+  extend(o, this._plasma.load.apply(this._plasma, args));
   o = this.flattenData(o);
 
   // 2) process data with expander
