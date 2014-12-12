@@ -17,7 +17,7 @@ describe('exists():', function () {
   beforeEach(function () {
     config = new Config();
     obj = {a: {b: {c: 1, d: '', e: null, f: undefined, 'g.h.i': 2}}};
-    config.merge(obj);
+    config.set(obj);
   })
 
   it('immediate property should exist.', function() {
@@ -30,7 +30,7 @@ describe('exists():', function () {
     config.exists('a.b.c').should.be.true;
   });
 
-  it.skip('nested property should exist.', function() {
+  it('nested property should exist.', function() {
     config.exists('a.b.d').should.be.true;
   });
   it.skip('nested property should exist.', function() {

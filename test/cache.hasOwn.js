@@ -7,14 +7,13 @@
 
 'use strict';
 
-var assert = require('assert');
 var should = require('should');
 var Config = require('..');
 var config;
 
 
 describe('config hasOwnProperty', function () {
-  afterEach(function() {
+  beforeEach(function() {
     config = new Config();
   });
 
@@ -22,9 +21,8 @@ describe('config hasOwnProperty', function () {
     it('should return `true` if the property is on the cache.', function () {
       config.set('a', 'b');
       config.get('a').should.equal('b');
-      config.get('a').should.be.ok;
 
-      config.hasOwn('a').should.be.ok;
+      config.hasOwn('a').should.be.true;
       config.hasOwn('a', {}).should.be.false;
     });
 
@@ -33,7 +31,6 @@ describe('config hasOwnProperty', function () {
       config.hasOwn('a').should.be.true;
       config.hasOwn('a', {}).should.be.false;
     });
-
 
     it('should return `false` when the property does not exist on the cache.', function () {
       config.set('a', 'b');
@@ -45,6 +42,5 @@ describe('config hasOwnProperty', function () {
       config.hasOwn('a').should.be.true;
       config.hasOwn('a', {}).should.be.false;
     });
-
   });
 });

@@ -9,21 +9,20 @@
 
 // require('require-progress');
 
-var _ = require('lodash');
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
+var extend = require('extend-shallow');
 var flatten = require('arr-flatten');
 var clone = require('clone-deep');
 var slice = require('array-slice');
 var rest = require('array-rest');
-var pick = require('object.pick');
 var set = require('set-object');
 var get = require('get-value');
+var forIn = require('for-in');
 var Plasma = require('plasma');
 var Events = require('./events');
 var expand = expander.process;
-var extend = _.extend;
 
 /**
  * Initialize a new `Cache`
@@ -140,27 +139,6 @@ Cache.prototype.get = function(key, create) {
     return this.cache;
   }
 
-  var val;
-  if (!/\./.test(key)) {
-    val = this.cache[key];
-  } else {
-    val = get(this.cache, key, true);
-  }
-
-  if (val == null) {
-    if (create) {
-      set(this.cache, key, true);
-      return this.cache[key];
-    }
-  }
-  return val;
-};
-
-Cache.prototype.get = function(key, create) {
-  if (!key) {
-    return this.cache;
-  }
-
   var args = slice(arguments);
   var last = args[args.length - 1];
   if (typeOf(last) === 'boolean') {
@@ -242,8 +220,10 @@ Cache.prototype.exists = function(key) {
   if (this.hasOwn(key)) {
     return true;
   }
+
   var val = get(this.cache, key, true);
-  return typeof val !== 'undefined';
+  return typeof val !== 'undefined'
+    && val !== null;
 };
 
 /**
@@ -312,13 +292,13 @@ Cache.prototype.extend = function() {
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = extend.apply(_, union([o], rest(args)));
+    o = extend.apply(extend, union([o], rest(args)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
 
-  extend.apply(_, union([this.cache], args));
+  extend.apply(extend, union([this.cache], args));
   this.emit('extend');
   return this;
 };
@@ -386,8 +366,7 @@ Cache.prototype.clone = function(o) {
  */
 
 Cache.prototype.methods = function(o) {
-  o = o || this.cache;
-  return pick(o, methods(o));
+  return methods(o || this.cache);
 };
 
 
@@ -680,14 +659,14 @@ function union() {
 
 function methods(o) {
   var res = {};
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      if (typeof obj[key] === 'function') {
-        res[key] = obj[key];
-      }
+
+  forIn(o, function (val, key) {
+    if (typeof val === 'function') {
+      res[key] = val;
     }
-  }
-  res;
+  });
+
+  return res;
 }
 
 /**

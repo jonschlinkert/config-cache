@@ -204,27 +204,6 @@ describe('Cache', function () {
 
         called.should.be.true;
       });
-
-
-      it('should emit `merged` when items are merged into the cache', function () {
-        var called = false;
-        var config = new Cache();
-
-        config.on('merge', function (key) {
-          config.get(key).should.be.undefined;
-          called = true;
-        });
-
-        config.merge({ one: 'a' });
-        config.merge({ two: 'c' });
-        config.merge({ thr: 'd' });
-        config.merge({ fou: 'e' });
-        config.merge({ fiv: 'f' });
-        config.merge({ six: 'g' });
-        config.merge({ sev: 'h' });
-
-        called.should.be.true;
-      });
     });
   });
 });
