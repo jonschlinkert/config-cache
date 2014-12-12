@@ -2,7 +2,6 @@
 
 > General purpose JavaScript object storage methods.
 
-## Install
 ## Install with [npm](npmjs.org)
 
 ```bash
@@ -17,7 +16,7 @@ var config = new Config();
 ```
 
 ## API
-### [Cache](index.js#L35)
+### [Cache](index.js#L40)
 
 Initialize a new `Cache`
 
@@ -27,7 +26,7 @@ Initialize a new `Cache`
 var cache = new Cache();
 ```
 
-### [.set](index.js#L91)
+### [.set](index.js#L96)
 
 Assign `value` to `key` or return the value of `key`.
 
@@ -68,7 +67,7 @@ Visit the [expander] docs for more info.
 [expander]: https://github.com/tkellen/expander
 [getobject]: https://github.com/cowboy/node-getobject
 
-### [.get](index.js#L132)
+### [.get](index.js#L137)
 
 Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [set-object] to initialize the value as an empty object.
 
@@ -87,7 +86,7 @@ cache.get('data', 'name');
 //=> 'Jon'
 ```
 
-### [.constant](index.js#L199)
+### [.constant](index.js#L184)
 
 Set a constant on the cache.
 
@@ -100,7 +99,7 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.exists](index.js#L234)
+### [.exists](index.js#L219)
 
 Return `true` if the element exists. Dot notation may be used for nested properties.
 
@@ -114,7 +113,7 @@ cache.exists('author.name');
 //=> true
 ```
 
-### [.union](index.js#L262)
+### [.union](index.js#L249)
 
 Add values to an array on the `cache`. This method is chainable.
 
@@ -131,33 +130,7 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.defaults](index.js#L303)
-
-Extend the `cache` with the given object. This method is chainable.
-
-* `returns` **{Object}** `Cache`: to enable chaining  
-
-**Example**
-
-```js
-cache
-  .defaults({foo: 'bar'}, {baz: 'quux'});
-  .defaults({fez: 'bang'});
-```
-
-Or define the property to defaults:
-
-```js
-cache
-  // defaults `cache.a`
-  .defaults('a', {foo: 'bar'}, {baz: 'quux'})
-  // defaults `cache.b`
-  .defaults('b', {fez: 'bang'})
-  // defaults `cache.a.b.c`
-  .defaults('a.b.c', {fez: 'bang'});
-```
-
-### [.extend](index.js#L349)
+### [.extend](index.js#L290)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -183,21 +156,7 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.merge](index.js#L382)
-
-Extend the cache with the given object. This method is chainable.
-
-* `returns` **{Object}** `Cache`: to enable chaining  
-
-**Example**
-
-```js
-cache
-  .merge({foo: 'bar'}, {baz: 'quux'});
-  .merge({fez: 'bang'});
-```
-
-### [.keys](index.js#L407)
+### [.keys](index.js#L317)
 
 Return the keys on `this.cache`.
 
@@ -207,7 +166,7 @@ Return the keys on `this.cache`.
 cache.keys();
 ```
 
-### [.hasOwn](index.js#L425)
+### [.hasOwn](index.js#L335)
 
 Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
 
@@ -219,7 +178,7 @@ Return true if `key` is an own, enumerable property of `this.cache` or the given
 cache.hasOwn([key]);
 ```
 
-### [.clone](index.js#L441)
+### [.clone](index.js#L351)
 
 Clone the given `obj` or `cache`.
 
@@ -230,7 +189,7 @@ Clone the given `obj` or `cache`.
 cache.clone();
 ```
 
-### [.methods](index.js#L458)
+### [.methods](index.js#L368)
 
 Return methods on `this.cache` or the given `obj`.
 
@@ -242,13 +201,13 @@ cache.methods('foo')
 //=> ['set', 'get', 'enable', ...]
 ```
 
-### [Data methods](index.js#L473)
+### [Data methods](index.js#L382)
 
 
 > Methods for reading data files, processing template strings and
 extending the `cache.data` object.
 
-### [.process](index.js#L491)
+### [.process](index.js#L400)
 
 Use [expander] to recursively expand template strings into their resolved values.
 
@@ -262,7 +221,7 @@ cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-### [.extendData](index.js#L557)
+### [.extendData](index.js#L466)
 
 Extend the `cache.data` object with the given data. This method is chainable.
 
@@ -276,7 +235,7 @@ cache
   .extendData({fez: 'bang'});
 ```
 
-### [.plasma](index.js#L590)
+### [.plasma](index.js#L499)
 
 Extend the `data` object with the value returned by [plasma].
 
@@ -293,7 +252,7 @@ cache
 
 See the [plasma] documentation for all available options.
 
-### [.data](index.js#L623)
+### [.data](index.js#L532)
 
 Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
@@ -318,13 +277,13 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-## [Clearing the cache](index.js#L661)
+## [Clearing the cache](index.js#L570)
 
 
 > Methods for clearing the cache, removing or reseting specific
 values on the cache.
 
-### [.omit](index.js#L680)
+### [.omit](index.js#L589)
 
 Omit properties from the `cache`.
 
@@ -340,7 +299,7 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-### [.clear](index.js#L722)
+### [.clear](index.js#L631)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
