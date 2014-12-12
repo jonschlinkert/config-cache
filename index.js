@@ -7,11 +7,16 @@
 
 'use strict';
 
+require('require-progress');
+
 var _ = require('lodash');
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
+var flatten = require('arr-flatten');
 var slice = require('array-slice');
+var rest = require('array-rest');
+var pick = require('object.pick');
 var set = require('set-object');
 var get = require('get-value');
 var Plasma = require('plasma');
@@ -128,6 +133,7 @@ Cache.prototype.set = function(key, value, expand) {
  * @return {*}
  * @api public
  */
+
 Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
@@ -148,37 +154,38 @@ Cache.prototype.get = function(key, create) {
   }
   return val;
 };
-// Cache.prototype.get = function(key, create) {
-//   if (!key) {
-//     return this.cache;
-//   }
 
-//   var args = slice(arguments);
-//   var last = args[args.length - 1];
-//   if (typeOf(last) === 'boolean') {
-//     create = last;
-//     args.pop();
-//   }
+Cache.prototype.get = function(key, create) {
+  if (!key) {
+    return this.cache;
+  }
 
-//   if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
-//     key = _.flatten(args).join('.');
-//   }
+  var args = slice(arguments);
+  var last = args[args.length - 1];
+  if (typeOf(last) === 'boolean') {
+    create = last;
+    args.pop();
+  }
 
-//   var val;
-//   if (/\./.test(key)) {
-//     val = get(this.cache, key, create);
-//   } else {
-//     val = this.cache[key];
-//   }
+  if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
+    key = flatten(args).join('.');
+  }
 
-//   if (val == null) {
-//     if (create) {
-//       set(this.cache, key, create);
-//       return this.cache[key];
-//     }
-//   }
-//   return val;
-// };
+  var val;
+  if (/\./.test(key)) {
+    val = get(this.cache, key, create);
+  } else {
+    val = this.cache[key];
+  }
+
+  if (val == null) {
+    if (create) {
+      set(this.cache, key, create);
+      return this.cache[key];
+    }
+  }
+  return val;
+};
 
 /**
  * Set a constant on the cache.
@@ -234,7 +241,8 @@ Cache.prototype.exists = function(key) {
   if (this.hasOwn(key)) {
     return true;
   }
-  return Boolean(get(this.cache, key, true));
+  var val = get(this.cache, key, true);
+  return typeof val !== 'undefined';
 };
 
 /**
@@ -265,7 +273,7 @@ Cache.prototype.union = function(key) {
     throw new Error('Cache#union expected an array but got', arr);
   }
 
-  this.set(key, _.union.apply(_, [arr].concat(args)));
+  this.set(key, union(arr, args));
   return this;
 };
 
@@ -303,15 +311,14 @@ Cache.prototype.defaults = function() {
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = _.defaults.apply(_, [o].concat(_.rest(args)));
+    o = _.defaults.apply(_, union([o], rest(args)));
     this.set(args[0], o);
     this.emit('defaults');
     return this;
   }
 
-  _.defaults.apply(_, [this.cache].concat(args));
+  _.defaults.apply(_, union([this.cache], args));
   this.emit('defaults');
-
   return this;
 };
 
@@ -349,13 +356,13 @@ Cache.prototype.extend = function() {
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = extend.apply(_, [o].concat(_.rest(args)));
+    o = extend.apply(_, union([o], rest(args)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
 
-  extend.apply(_, [this.cache].concat(args));
+  extend.apply(_, union([this.cache], args));
   this.emit('extend');
   return this;
 };
@@ -381,12 +388,12 @@ Cache.prototype.merge = function() {
   var args = slice(arguments);
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = _.merge.apply(_, [o].concat(_.rest(args)));
+    o = _.merge.apply(_, union([o], rest(args)));
     this.set(args[0], o);
     this.emit('merge');
     return this;
   }
-  _.merge.apply(_, [this.cache].concat(args));
+  _.merge.apply(_, union([this.cache], args));
   this.emit('merge');
   return this;
 };
@@ -556,7 +563,7 @@ Cache.prototype.extendData = function() {
   var args = slice(arguments);
 
   if (typeof args[0] === 'string') {
-    this.extend.apply(this, ['data.' + args[0]].concat(_.rest(args)));
+    this.extend.apply(this, ['data.' + args[0]].concat(rest(args)));
     this.emit('extendData');
     return this;
   }
@@ -631,7 +638,7 @@ Cache.prototype.data = function() {
   // 1) when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
     last = args[len - 1];
-    args = _.initial(args);
+    args = slice(args, 1);
   }
 
   extend(o, this._plasma.load.apply(this._plasma, args));
@@ -726,6 +733,18 @@ Cache.prototype.clear = function(key) {
     this.emit('clear');
   }
 };
+
+
+/**
+ * Utility function for concatenating array
+ * elements.
+ *
+ * @api private
+ */
+
+function union() {
+  return flatten([].concat.apply([], arguments));
+}
 
 /**
  * Expose `Cache`
