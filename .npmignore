@@ -11,3 +11,5 @@ vendor
 
 # npmignore
 test
+.verb.md
+.gitattributes
