@@ -13,7 +13,7 @@ var Config = require('..');
 var config;
 
 
-describe.skip('config process', function () {
+describe('config process', function () {
   beforeEach(function() {
     config = new Config();
     config.omit('abcdefghijklmnopqrstuvwxyz'.split(''));

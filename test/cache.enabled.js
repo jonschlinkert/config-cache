@@ -7,14 +7,12 @@
 
 'use strict';
 
-var assert = require('assert');
 var should = require('should');
 var Config = require('..');
 var config;
 
-
 describe('config get/set', function () {
-  afterEach(function() {
+  beforeEach(function() {
     config = new Config();
   });
 

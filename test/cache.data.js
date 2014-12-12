@@ -11,7 +11,7 @@ var should = require('should');
 var Config = require('..');
 var config;
 
-describe.only('config data', function() {
+describe('config data', function() {
   beforeEach(function() {
     config = new Config();
   });

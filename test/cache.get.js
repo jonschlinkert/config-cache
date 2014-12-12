@@ -17,10 +17,10 @@ describe('.get()', function () {
   beforeEach(function () {
     config = new Config();
     obj = {a: {b: {c: 1, d: '', e: null, f: undefined, 'g.h.i': 2}}};
-    config.merge(obj);
+    config.set(obj);
   })
-  describe('get() - add:', function () {
 
+  describe('get() - add:', function () {
     it('should get immediate properties.', function() {
       config.get('a').should.eql(obj.a);
     });

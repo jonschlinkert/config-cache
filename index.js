@@ -7,17 +7,22 @@
 
 'use strict';
 
-var _ = require('lodash');
+// require('require-progress');
+
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
+var extend = require('extend-shallow');
+var flatten = require('arr-flatten');
+var clone = require('clone-deep');
 var slice = require('array-slice');
+var rest = require('array-rest');
 var set = require('set-object');
 var get = require('get-value');
+var forIn = require('for-in');
 var Plasma = require('plasma');
 var Events = require('./events');
 var expand = expander.process;
-var extend = _.extend;
 
 /**
  * Initialize a new `Cache`
@@ -128,57 +133,38 @@ Cache.prototype.set = function(key, value, expand) {
  * @return {*}
  * @api public
  */
+
 Cache.prototype.get = function(key, create) {
   if (!key) {
     return this.cache;
   }
 
+  var args = slice(arguments);
+  var last = args[args.length - 1];
+  if (typeOf(last) === 'boolean') {
+    create = last;
+    args.pop();
+  }
+
+  if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
+    key = flatten(args).join('.');
+  }
+
   var val;
-  if (!/\./.test(key)) {
-    val = this.cache[key];
+  if (/\./.test(key)) {
+    val = get(this.cache, key, create);
   } else {
-    val = get(this.cache, key, true);
+    val = this.cache[key];
   }
 
   if (val == null) {
     if (create) {
-      set(this.cache, key, true);
+      set(this.cache, key, create);
       return this.cache[key];
     }
   }
   return val;
 };
-// Cache.prototype.get = function(key, create) {
-//   if (!key) {
-//     return this.cache;
-//   }
-
-//   var args = slice(arguments);
-//   var last = args[args.length - 1];
-//   if (typeOf(last) === 'boolean') {
-//     create = last;
-//     args.pop();
-//   }
-
-//   if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
-//     key = _.flatten(args).join('.');
-//   }
-
-//   var val;
-//   if (/\./.test(key)) {
-//     val = get(this.cache, key, create);
-//   } else {
-//     val = this.cache[key];
-//   }
-
-//   if (val == null) {
-//     if (create) {
-//       set(this.cache, key, create);
-//       return this.cache[key];
-//     }
-//   }
-//   return val;
-// };
 
 /**
  * Set a constant on the cache.
@@ -234,7 +220,10 @@ Cache.prototype.exists = function(key) {
   if (this.hasOwn(key)) {
     return true;
   }
-  return Boolean(get(this.cache, key, true));
+
+  var val = get(this.cache, key, true);
+  return typeof val !== 'undefined'
+    && val !== null;
 };
 
 /**
@@ -265,53 +254,7 @@ Cache.prototype.union = function(key) {
     throw new Error('Cache#union expected an array but got', arr);
   }
 
-  this.set(key, _.union.apply(_, [arr].concat(args)));
-  return this;
-};
-
-/**
- * Extend the `cache` with the given object.
- * This method is chainable.
- *
- * **Example**
- *
- * ```js
- * cache
- *   .defaults({foo: 'bar'}, {baz: 'quux'});
- *   .defaults({fez: 'bang'});
- * ```
- *
- * Or define the property to defaults:
- *
- * ```js
- * cache
- *   // defaults `cache.a`
- *   .defaults('a', {foo: 'bar'}, {baz: 'quux'})
- *   // defaults `cache.b`
- *   .defaults('b', {fez: 'bang'})
- *   // defaults `cache.a.b.c`
- *   .defaults('a.b.c', {fez: 'bang'});
- * ```
- *
- * @chainable
- * @return {Object} `Cache` to enable chaining
- * @api public
- */
-
-Cache.prototype.defaults = function() {
-  var args = slice(arguments);
-
-  if (typeof args[0] === 'string') {
-    var o = this.get(args[0]) || {};
-    o = _.defaults.apply(_, [o].concat(_.rest(args)));
-    this.set(args[0], o);
-    this.emit('defaults');
-    return this;
-  }
-
-  _.defaults.apply(_, [this.cache].concat(args));
-  this.emit('defaults');
-
+  this.set(key, union(arr, args));
   return this;
 };
 
@@ -349,45 +292,14 @@ Cache.prototype.extend = function() {
 
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = extend.apply(_, [o].concat(_.rest(args)));
+    o = extend.apply(extend, union([o], rest(args)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
 
-  extend.apply(_, [this.cache].concat(args));
+  extend.apply(extend, union([this.cache], args));
   this.emit('extend');
-  return this;
-};
-
-/**
- * Extend the cache with the given object.
- * This method is chainable.
- *
- * **Example**
- *
- * ```js
- * cache
- *   .merge({foo: 'bar'}, {baz: 'quux'});
- *   .merge({fez: 'bang'});
- * ```
- *
- * @chainable
- * @return {Object} `Cache` to enable chaining
- * @api public
- */
-
-Cache.prototype.merge = function() {
-  var args = slice(arguments);
-  if (typeof args[0] === 'string') {
-    var o = this.get(args[0]) || {};
-    o = _.merge.apply(_, [o].concat(_.rest(args)));
-    this.set(args[0], o);
-    this.emit('merge');
-    return this;
-  }
-  _.merge.apply(_, [this.cache].concat(args));
-  this.emit('merge');
   return this;
 };
 
@@ -437,7 +349,7 @@ Cache.prototype.hasOwn = function(key, o) {
  */
 
 Cache.prototype.clone = function(o) {
-  return _.cloneDeep(o || this.cache);
+  return clone(o || this.cache);
 };
 
 /**
@@ -454,8 +366,7 @@ Cache.prototype.clone = function(o) {
  */
 
 Cache.prototype.methods = function(o) {
-  o = o || this.cache;
-  return _.pick(o, _.methods(o));
+  return methods(o || this.cache);
 };
 
 
@@ -556,7 +467,7 @@ Cache.prototype.extendData = function() {
   var args = slice(arguments);
 
   if (typeof args[0] === 'string') {
-    this.extend.apply(this, ['data.' + args[0]].concat(_.rest(args)));
+    this.extend.apply(this, ['data.' + args[0]].concat(rest(args)));
     this.emit('extendData');
     return this;
   }
@@ -631,7 +542,7 @@ Cache.prototype.data = function() {
   // 1) when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
     last = args[len - 1];
-    args = _.initial(args);
+    args = slice(args, 1);
   }
 
   extend(o, this._plasma.load.apply(this._plasma, args));
@@ -726,6 +637,37 @@ Cache.prototype.clear = function(key) {
     this.emit('clear');
   }
 };
+
+
+/**
+ * Utility function for concatenating array
+ * elements.
+ *
+ * @api private
+ */
+
+function union() {
+  return flatten([].concat.apply([], arguments));
+}
+
+/**
+ * Utility function for concatenating array
+ * elements.
+ *
+ * @api private
+ */
+
+function methods(o) {
+  var res = {};
+
+  forIn(o, function (val, key) {
+    if (typeof val === 'function') {
+      res[key] = val;
+    }
+  });
+
+  return res;
+}
 
 /**
  * Expose `Cache`
