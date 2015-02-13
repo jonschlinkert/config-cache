@@ -7,8 +7,6 @@
 
 'use strict';
 
-// require('require-progress');
-
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
@@ -56,35 +54,6 @@ extend(Cache.prototype, Options.prototype);
  * ```js
  * cache.set(key, value);
  * ```
- *
- * If `expand` is defined as true, the value will be set using [expander].
- *
- * **Examples:**
- *
- * ```js
- * // as a key-value pair
- * cache.set('a', {b: 'c'});
- *
- * // or as an object
- * cache.set({a: {b: 'c'}});
- *
- * // chaining is possible
- * cache
- *   .set({a: {b: 'c'}})
- *   .set('d', 'e');
- * ```
- *
- * Expand template strings with expander:
- *
- * ```js
- * cache.set('a', {b: '${c}', c: 'd'}, true);
- * ```
- *
- * Visit the [expander] docs for more info.
- *
- *
- * [expander]: https://github.com/tkellen/expander
- * [getobject]: https://github.com/cowboy/node-getobject
  *
  * @param {String} `key`
  * @param {*} `value`
@@ -140,29 +109,33 @@ Cache.prototype.get = function(key, create) {
   }
 
   var args = slice(arguments);
+  var len = args.length;
+  var val;
+
+  if (len === 1 && typeof key === 'string' && this.cache.hasOwnProperty(key)) {
+    return this.cache[key];
+  }
+
   var last = args[args.length - 1];
-  if (typeOf(last) === 'boolean') {
+  if (last === true) {
     create = last;
     args.pop();
   }
 
-  if (Array.isArray(key) || (typeof key === 'string' && args.length > 1)) {
+  // Allow object paths to be defined as arrays: ['a', 'b', 'c'] => 'a.b.c'
+  if (Array.isArray(key) || (typeof key === 'string' && len > 1)) {
     key = flatten(args).join('.');
   }
 
-  var val;
-  if (/\./.test(key)) {
+  if (key.indexOf('.') !== -1) {
     val = get(this.cache, key, create);
-  } else {
-    val = this.cache[key];
   }
 
-  if (val == null) {
-    if (create) {
-      set(this.cache, key, create);
-      return this.cache[key];
-    }
+  if (typeof val === 'undefined' && create) {
+    set(this.cache, key, true);
+    return this.cache[key];
   }
+
   return val;
 };
 
@@ -289,7 +262,6 @@ Cache.prototype.union = function(key) {
 
 Cache.prototype.extend = function() {
   var args = slice(arguments);
-
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
     o = extend.apply(extend, union([o], rest(args)));
@@ -297,7 +269,6 @@ Cache.prototype.extend = function() {
     this.emit('extend');
     return this;
   }
-
   extend.apply(extend, union([this.cache], args));
   this.emit('extend');
   return this;
@@ -369,7 +340,6 @@ Cache.prototype.methods = function(o) {
   return methods(o || this.cache);
 };
 
-
 /**
  * # Data methods
  *
@@ -378,7 +348,6 @@ Cache.prototype.methods = function(o) {
  *
  * @api public
  */
-
 
 /**
  * Use [expander] to recursively expand template strings into
@@ -638,7 +607,6 @@ Cache.prototype.clear = function(key) {
   }
 };
 
-
 /**
  * Utility function for concatenating array
  * elements.
@@ -659,13 +627,11 @@ function union() {
 
 function methods(o) {
   var res = {};
-
   forIn(o, function (val, key) {
     if (typeof val === 'function') {
       res[key] = val;
     }
   });
-
   return res;
 }
 
