@@ -29,10 +29,10 @@ describe('exists():', function () {
   it('nested property should exist.', function() {
     config.exists('a.b.c').should.be.true;
   });
-
   it('nested property should exist.', function() {
     config.exists('a.b.d').should.be.true;
   });
+
   it.skip('nested property should exist.', function() {
     config.exists('a.b.e').should.be.true;
   });
@@ -41,7 +41,7 @@ describe('exists():', function () {
   });
 
   it('literal backslash should escape period in property name.', function() {
-    config.exists('a.b.g\\.h\\.i').should.be.true;
+    config.exists('a.b.g\\.h\\.i', true).should.be.true;
   });
 
   it('nonexistent property should not exist.', function() {

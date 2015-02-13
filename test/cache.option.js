@@ -43,47 +43,22 @@ describe('config option', function() {
     });
 
     it('should be chainable.', function() {
-      config
-        .option({x: 'xxx', y: 'yyy', z: 'zzz'})
-        .option({a: 'aaa', b: 'bbb', c: 'ccc'});
+      config.option({x: 'xxx', y: 'yyy', z: 'zzz'})
+      config.option({a: 'aaa', b: 'bbb', c: 'ccc'});
 
       config.option('x').should.equal('xxx');
       config.option('a').should.equal('aaa');
     });
 
     it('should extend the `options` object when the first param is a string.', function() {
-      config
-        .option('foo', {x: 'xxx', y: 'yyy', z: 'zzz'})
-        .option('bar', {a: 'aaa', b: 'bbb', c: 'ccc'});
+      config.option('foo', {x: 'xxx', y: 'yyy', z: 'zzz'})
+      config.option('bar', {a: 'aaa', b: 'bbb', c: 'ccc'});
 
       config.option('foo').should.have.property('x');
       config.option('bar').should.have.property('a');
 
       config.options.foo.should.have.property('x');
       config.options.bar.should.have.property('a');
-    });
-  });
-
-  // events are disabled for options for the time being
-  describe.skip('option events', function () {
-    var config = new Config();
-
-    it('should emit `option` when a value is set', function () {
-      config.once('option', function (key, val) {
-        config.option('a', 'b');
-      });
-      config.option('foo', 'bar');
-      config.options.should.have.property('foo');
-      config.options.should.have.property('a');
-    });
-
-    it('should emit `option` when an object is set', function () {
-      config.once('option', function (key, val) {
-        config.option('a', 'b');
-      });
-      config.option({foo: 'bar'});
-      config.options.should.have.property('foo');
-      config.options.should.have.property('a');
     });
   });
 });

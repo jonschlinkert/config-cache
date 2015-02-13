@@ -61,7 +61,7 @@ describe('.get()', function () {
     it('should create nested properties.', function() {
       config = new Config();
       config.get('c.d.e', true);
-      config.cache.c.d.e.should.equal(true);
+      config.cache.c.d.e.should.be.true;
     });
   });
 });

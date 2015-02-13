@@ -134,39 +134,6 @@ describe('Cache', function () {
         called.should.be.true;
       });
 
-      // events are currently disabled on options
-      it.skip('should emit `enabled` when a value is enabled', function () {
-        var config = new Cache();
-        var called = false;
-
-        config.once('enable', function (key, value) {
-          called = true;
-          config.enable('hidden');
-        });
-
-        config.enable('option');
-        config.enabled('hidden').should.be.true;
-        called.should.be.true;
-      });
-
-      // events are currently disabled on options
-      it.skip('should emit `disable` when items on the cache are disabled.', function () {
-        var called = false;
-        var config = new Cache();
-
-        config.enable('foo');
-        config.enabled('foo').should.be.true;
-
-        config.once('disable', function (key, value) {
-          called = true;
-        });
-
-        config.disable('foo');
-        called.should.be.true;
-
-        config.enabled('foo').should.be.false;
-      });
-
       it('should emit `clear` when an item is removed from the cache', function () {
         var called = false;
         var config = new Cache();
