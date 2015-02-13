@@ -1,7 +1,7 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
@@ -21,7 +21,8 @@
     }
   ],
   "files": [
-    "index.js"
+    "index.js",
+    "events.js"
   ],
   "main": "index.js",
   "engines": {
