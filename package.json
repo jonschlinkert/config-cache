@@ -1,12 +1,22 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
     "url": "https://github.com/jonschlinkert"
   },
+  "authors": [
+    {
+      "name": "Jon Schlinkert",
+      "username": "jonschlinkert"
+    },
+    {
+      "name": "Brian Woodward",
+      "username": "doowb"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/jonschlinkert/config-cache.git"
@@ -14,12 +24,10 @@
   "bugs": {
     "url": "https://github.com/jonschlinkert/config-cache/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/jonschlinkert/config-cache/blob/master/LICENSE"
-    }
-  ],
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/jonschlinkert/config-cache/blob/master/LICENSE"
+  },
   "files": [
     "index.js",
     "events.js"
