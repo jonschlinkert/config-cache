@@ -13,7 +13,6 @@ var Options = require('option-cache');
 var extend = require('extend-shallow');
 var flatten = require('arr-flatten');
 var clone = require('clone-deep');
-var slice = require('array-slice');
 var rest = require('array-rest');
 var set = require('set-object');
 var get = require('get-value');
@@ -108,7 +107,13 @@ Cache.prototype.get = function(key, create) {
     return this.cache;
   }
 
-  var args = slice(arguments);
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
+
   var len = args.length;
   var val;
 
@@ -220,11 +225,17 @@ Cache.prototype.exists = function(key) {
  */
 
 Cache.prototype.union = function(key) {
-  var args = slice(arguments, 1);
   var arr = this.get(key) || [];
 
   if (!Array.isArray(arr)) {
     throw new Error('Cache#union expected an array but got', arr);
+  }
+
+  var len = arguments.length - 1;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i + 1];
   }
 
   this.set(key, union(arr, args));
@@ -261,7 +272,13 @@ Cache.prototype.union = function(key) {
  */
 
 Cache.prototype.extend = function() {
-  var args = slice(arguments);
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
+
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
     o = extend.apply(extend, union([o], rest(args)));
@@ -367,7 +384,12 @@ Cache.prototype.methods = function(o) {
  */
 
 Cache.prototype.process = function(lookup, context) {
-  var args = slice(arguments);
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
 
   if (!args.length) {
     lookup = context = this.cache.data;
@@ -386,7 +408,6 @@ Cache.prototype.process = function(lookup, context) {
   if (!args.length) {
     extend(this.cache.data, o);
   }
-
   return o;
 };
 
@@ -411,7 +432,6 @@ Cache.prototype.flattenData = function(data, name) {
       delete data[prop];
     }
   });
-
   return data;
 };
 
@@ -433,7 +453,12 @@ Cache.prototype.flattenData = function(data, name) {
  */
 
 Cache.prototype.extendData = function() {
-  var args = slice(arguments);
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
 
   if (typeof args[0] === 'string') {
     this.extend.apply(this, ['data.' + args[0]].concat(rest(args)));
@@ -443,7 +468,6 @@ Cache.prototype.extendData = function() {
 
   this.extend.apply(this, ['data'].concat(args));
   this.emit('extendData');
-
   return this;
 };
 
@@ -466,8 +490,7 @@ Cache.prototype.extendData = function() {
  */
 
 Cache.prototype.plasma = function() {
-  var args = slice(arguments);
-  return this._plasma.load.apply(this._plasma, args);
+  return this._plasma.load.apply(this._plasma, arguments);
 };
 
 /**
@@ -499,8 +522,12 @@ Cache.prototype.plasma = function() {
  */
 
 Cache.prototype.data = function() {
-  var args = slice(arguments);
-  var len = args.length;
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
 
   if (!len) {
     return this.cache.data;
@@ -511,10 +538,10 @@ Cache.prototype.data = function() {
   // 1) when the last arg is `true`...
   if (typeof args[len - 1] === 'boolean') {
     last = args[len - 1];
-    args = slice(args, 1);
+    args = args.slice(1);
   }
 
-  extend(o, this._plasma.load.apply(this._plasma, args));
+  extend(o, this.plasma.apply(this, args));
   o = this.flattenData(o);
 
   // 2) process data with expander
@@ -560,8 +587,13 @@ Cache.prototype.omit = function(keys) {
     return this;
   }
 
-  var args = slice(arguments);
-  var len = args.length;
+  var len = arguments.length;
+  var args = new Array(len);
+
+  for (var i = 0; i < len; i++) {
+    args[i] = arguments[i];
+  }
+
   var omit = [];
   var i = 0;
 
@@ -578,7 +610,6 @@ Cache.prototype.omit = function(keys) {
   }
 
   this.cache = o;
-
   this.emit('omit');
   return this;
 };
