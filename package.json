@@ -1,7 +1,7 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/jonschlinkert/config-cache",
   "author": {
     "name": "Jon Schlinkert",
@@ -42,7 +42,6 @@
   "dependencies": {
     "arr-flatten": "^1.0.0",
     "array-rest": "^0.1.1",
-    "array-slice": "^0.2.2",
     "class-extend": "^0.1.1",
     "clone-deep": "^0.1.1",
     "eventemitter2": "^0.4.14",
