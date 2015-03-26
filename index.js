@@ -14,12 +14,14 @@ var extend = require('extend-shallow');
 var flatten = require('arr-flatten');
 var clone = require('clone-deep');
 var rest = require('array-rest');
-var set = require('set-object');
+var set = require('set-value');
 var get = require('get-value');
+var has = require('has-value');
 var forIn = require('for-in');
 var Plasma = require('plasma');
 var Events = require('./events');
 var expand = expander.process;
+var hasOwn = Object.prototype.hasOwnProperty;
 
 /**
  * Initialize a new `Cache`
@@ -117,7 +119,7 @@ Cache.prototype.get = function(key, create) {
   var len = args.length;
   var val;
 
-  if (len === 1 && typeof key === 'string' && this.cache.hasOwnProperty(key)) {
+  if (len === 1 && typeof key === 'string' && this.hasOwn(key)) {
     return this.cache[key];
   }
 
@@ -179,8 +181,8 @@ Cache.prototype.constant = function(key, value, namespace) {
 };
 
 /*
- * Return `true` if the element exists. Dot notation
- * may be used for nested properties.
+ * Return true if `key` exists in `cache`. Dot notation may
+ * be used for nested properties.
  *
  * **Example**
  *
@@ -202,6 +204,26 @@ Cache.prototype.exists = function(key) {
   var val = get(this.cache, key, true);
   return typeof val !== 'undefined'
     && val !== null;
+};
+
+/*
+ * Return true if `property` exists and has a non-null value.
+ * Dot notation may be used for nested properties.
+ *
+ * **Example**
+ *
+ * ```js
+ * cache.has('author.name');
+ * //=> true
+ * ```
+ *
+ * @param   {String}  `property`
+ * @return  {Boolean}
+ * @api public
+ */
+
+Cache.prototype.has = function(prop) {
+  return has(this.cache, prop);
 };
 
 /**
@@ -228,7 +250,7 @@ Cache.prototype.union = function(key) {
   var arr = this.get(key) || [];
 
   if (!Array.isArray(arr)) {
-    throw new Error('Cache#union expected an array but got', arr);
+    throw new Error('config-cache#union expected an array but got:', arr);
   }
 
   var len = arguments.length - 1;
@@ -320,8 +342,8 @@ Cache.prototype.keys = function(o) {
  * @api public
  */
 
-Cache.prototype.hasOwn = function(key, o) {
-  return {}.hasOwnProperty.call(o || this.cache, key);
+ Cache.prototype.hasOwn = function(key, o) {
+  return hasOwn.call(o || this.cache, key);
 };
 
 /**
