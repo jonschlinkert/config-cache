@@ -20,7 +20,23 @@ describe('union():', function () {
     config.set(obj);
   })
 
-  it('immediate property should exist.', function() {
+  it('should throw an error on bad args:', function() {
+    (function () {
+      config.union(null);
+    }).should.throw('config-cache#union expected an array but got:');
+  });
+
+  it('should set a new array on the given property', function() {
+    config.union('x', ['one', 'two']);
+    config.cache.x.should.eql([ 'one', 'two' ]);
+  });
+
+  it('should set a new array `cache`.', function() {
+    config.union('x.y.z', ['one', 'two']);
+    config.cache.x.should.eql({ y: { z: [ 'one', 'two' ] } });
+  });
+
+  it('should add values to an existing array.', function() {
     config.union('a.b', ['c']);
     config.cache.a.should.eql({b: ['a', 'b', 'c']});
     config.union('a.b', ['d', 'e']);
