@@ -260,7 +260,7 @@ Cache.prototype.union = function(key) {
     args[i] = arguments[i + 1];
   }
 
-  this.set(key, union(arr, args));
+  this.set(key, union(arr, flatten(args)));
   return this;
 };
 
