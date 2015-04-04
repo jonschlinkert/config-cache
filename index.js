@@ -169,7 +169,7 @@ Cache.prototype.keys = function(o) {
  * @api public
  */
 
- Cache.prototype.hasOwn = function(key, o) {
+Cache.prototype.hasOwn = function(key, o) {
   return hasOwn.call(o || this.cache, key);
 };
 
