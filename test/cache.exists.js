@@ -33,10 +33,10 @@ describe('exists():', function () {
     config.exists('a.b.d').should.be.true;
   });
 
-  it.skip('nested property should exist.', function() {
+  it('nested property should exist.', function() {
     config.exists('a.b.e').should.be.true;
   });
-  it.skip('nested property should exist.', function() {
+  it('nested property should exist.', function() {
     config.exists('a.b.f').should.be.true;
   });
 

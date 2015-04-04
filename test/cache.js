@@ -7,6 +7,7 @@
 
 'use strict';
 
+var assert = require('assert');
 var should = require('should');
 var Cache = require('..');
 
@@ -42,14 +43,6 @@ describe('Cache', function () {
   });
 
   describe('events:', function () {
-    describe('when configuration settings are customized', function () {
-      it('should have the custom settings', function () {
-        var config = new Cache();
-        config.wildcard.should.be.true;
-        config.listenerTree.should.be.an.object;
-      });
-    });
-
     describe('when a listener is removed', function () {
       it('should remove listener', function () {
         var config = new Cache();
@@ -142,12 +135,11 @@ describe('Cache', function () {
 
         config.on('clear', function (key, value) {
           called = true;
-          config.get(key).should.be.undefined;
+          assert(config.get(key) == undefined);
         });
 
         config.clear('one');
         config.clear('two');
-
         called.should.be.true;
       });
 
@@ -163,12 +155,11 @@ describe('Cache', function () {
         config.set('sev', 'h');
 
         config.on('omit', function (key) {
-          config.get(key).should.be.undefined;
           called = true;
+          assert(config.cache[key] == undefined);
         });
 
         config.omit(['one', 'two', 'thr', 'fou', 'fiv', 'six', 'sev']);
-
         called.should.be.true;
       });
     });
