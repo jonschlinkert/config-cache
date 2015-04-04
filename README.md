@@ -16,7 +16,7 @@ var config = new Config();
 ```
 
 ## API
-### [Cache](./index.js#L39)
+### [Cache](./index.js#L41)
 
 Initialize a new `Cache`
 
@@ -26,7 +26,7 @@ Initialize a new `Cache`
 var cache = new Cache();
 ```
 
-### [.set](./index.js#L66)
+### [.set](./index.js#L71)
 
 Assign `value` to `key` or return the value of `key`.
 
@@ -39,12 +39,12 @@ Assign `value` to `key` or return the value of `key`.
 cache.set(key, value);
 ```
 
-### [.get](./index.js#L107)
+### [.get](./index.js#L108)
 
-Return the stored value of `key`. If the value does **not** exist on the cache, you may pass `true` as a second parameter to tell [set-object] to initialize the value as an empty object.
+Return the stored value of `key`. Dot notation may be used to get [nested property values][get-value].
 
 * `key` **{*}**    
-* `create` **{Boolean}**    
+* `escape` **{Boolean}**    
 * `returns`: {*}  
 
 ```js
@@ -58,7 +58,7 @@ cache.get('data', 'name');
 //=> 'Jon'
 ```
 
-### [.constant](./index.js#L164)
+### [.constant](./index.js#L127)
 
 Set a constant on the cache.
 
@@ -71,7 +71,29 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.exists](./index.js#L199)
+### [.keys](./index.js#L154)
+
+Return the keys on `this.cache`.
+
+* `returns`: {Boolean}  
+
+```js
+cache.keys();
+```
+
+### [.hasOwn](./index.js#L172)
+
+Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
+
+* `key` **{String}**    
+* `obj` **{Object}**: Optionally pass an object to check.    
+* `returns`: {Boolean}  
+
+```js
+cache.hasOwn([key]);
+```
+
+### [.exists](./index.js#L192)
 
 Return true if `key` exists in `cache`. Dot notation may be used for nested properties.
 
@@ -85,7 +107,7 @@ cache.exists('author.name');
 //=> true
 ```
 
-### [.has](./index.js#L225)
+### [.has](./index.js#L212)
 
 Return true if `property` exists and has a non-null value. Dot notation may be used for nested properties.
 
@@ -99,7 +121,7 @@ cache.has('author.name');
 //=> true
 ```
 
-### [.union](./index.js#L249)
+### [.union](./index.js#L236)
 
 Add values to an array on the `cache`. This method is chainable.
 
@@ -116,7 +138,7 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.extend](./index.js#L296)
+### [.extend](./index.js#L283)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -142,29 +164,7 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.keys](./index.js#L327)
-
-Return the keys on `this.cache`.
-
-* `returns`: {Boolean}  
-
-```js
-cache.keys();
-```
-
-### [.hasOwn](./index.js#L345)
-
-Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
-
-* `key` **{String}**    
-* `obj` **{Object}**: Optionally pass an object to check.    
-* `returns`: {Boolean}  
-
-```js
-cache.hasOwn([key]);
-```
-
-### [.clone](./index.js#L361)
+### [.clone](./index.js#L315)
 
 Clone the given `obj` or `cache`.
 
@@ -175,7 +175,7 @@ Clone the given `obj` or `cache`.
 cache.clone();
 ```
 
-### [.methods](./index.js#L378)
+### [.methods](./index.js#L332)
 
 Return methods on `this.cache` or the given `obj`.
 
@@ -187,13 +187,13 @@ cache.methods('foo')
 //=> ['set', 'get', 'enable', ...]
 ```
 
-### [Data methods](./index.js#L391)
+### [Data methods](./index.js#L345)
 
 
 > Methods for reading data files, processing template strings and
 extending the `cache.data` object.
 
-### [.process](./index.js#L408)
+### [.process](./index.js#L362)
 
 Use [expander] to recursively expand template strings into their resolved values.
 
@@ -207,7 +207,7 @@ cache.process({a: '<%= b %>', b: 'c'});
 //=> {a: 'c', b: 'c'}
 ```
 
-### [.extendData](./index.js#L477)
+### [.extendData](./index.js#L432)
 
 Extend the `cache.data` object with the given data. This method is chainable.
 
@@ -221,7 +221,7 @@ cache
   .extendData({fez: 'bang'});
 ```
 
-### [.plasma](./index.js#L514)
+### [.plasma](./index.js#L469)
 
 Extend the `data` object with the value returned by [plasma].
 
@@ -238,7 +238,7 @@ cache
 
 See the [plasma] documentation for all available options.
 
-### [.data](./index.js#L546)
+### [.data](./index.js#L501)
 
 Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
 
@@ -263,13 +263,13 @@ cache.data({a: '<%= b %>', b: 'z'})
 //=> {data: {a: 'z', b: 'z'}}
 ```
 
-## [Clearing the cache](./index.js#L588)
+## [Clearing the cache](./index.js#L543)
 
 
 > Methods for clearing the cache, removing or reseting specific
 values on the cache.
 
-### [.omit](./index.js#L607)
+### [.omit](./index.js#L562)
 
 Omit properties from the `cache`.
 
@@ -285,7 +285,7 @@ cache
   .omit(['foo', 'bar']);
 ```
 
-### [.clear](./index.js#L653)
+### [.clear](./index.js#L608)
 
 Remove `key` from the cache, or if no value is specified the entire cache is reset.
 
@@ -324,20 +324,17 @@ cache.set('a', {b: '${c}', c: 'd'}, true);
 
 Visit the [expander] docs for more info.
 
-
-[expander]: https://github.com/tkellen/expander
-[getobject]: https://github.com/cowboy/node-getobject
-
-
 ## Related
  * [option-cache](https://github.com/jonschlinkert/option-cache): Simple API for managing options in JavaScript applications.
  * [map-cache](https://github.com/jonschlinkert/map-cache): Basic cache object for storing key-value pairs.
  * [cache-base](https://github.com/jonschlinkert/cache-base): Generic object cache for node.js/javascript projects.
- * [config-cache](https://github.com/jonschlinkert/config-cache): General purpose JavaScript object storage methods.
  * [engine-cache](https://github.com/jonschlinkert/engine-cache): express.js inspired template-engine manager.
  * [loader-cache](https://github.com/jonschlinkert/loader-cache): Register loader functions that dynamically read, parse or otherwise transform file contents when the name of the loader matches a file extension. You can also compose loaders from other loaders.
  * [parser-cache](https://github.com/jonschlinkert/parser-cache): Cache and load parsers, similiar to consolidate.js engines.
  * [helper-cache](https://github.com/jonschlinkert/helper-cache): Easily register and get helper functions to be passed to any template engine or node.js application. Methods for both sync and async helpers.
+ * [get-value](https://github.com/jonschlinkert/get-value): Use property paths (`a.b.c`) get a nested value from an object.
+ * [set-value](https://github.com/jonschlinkert/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths.
+ * [has-value](https://github.com/jonschlinkert/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using object paths.
 
 ## Contributing
 Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/config-cache/issues)
@@ -362,22 +359,27 @@ Released under the MIT license
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on April 02, 2015._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on April 04, 2015._
 
 [arr-flatten]: https://github.com/jonschlinkert/arr-flatten
 [array-rest]: https://github.com/jonschlinkert/array-rest
 [class-extend]: https://github.com/SBoudrias/class-extend
 [clone-deep]: https://github.com/jonschlinkert/clone-deep
-[EventEmitter2]: https://github.com/hij1nx/EventEmitter2
+[emitter]: https://github.com/component/emitter
 [expander]: https://github.com/tkellen/expander
 [extend-shallow]: https://github.com/jonschlinkert/extend-shallow
 [for-in]: https://github.com/jonschlinkert/for-in
 [get-value]: https://github.com/jonschlinkert/get-value
+[has-own-deep]: https://github.com/jonschlinkert/has-own-deep
 [has-value]: https://github.com/jonschlinkert/has-value
 [kind-of]: https://github.com/jonschlinkert/kind-of
 [option-cache]: https://github.com/jonschlinkert/option-cache
 [plasma]: https://github.com/jonschlinkert/plasma
 [set-value]: https://github.com/jonschlinkert/set-value
 
+[expander]: https://github.com/tkellen/expander
+[get-value]: https://github.com/jonschlinkert/get-value
+[set-value]: https://github.com/jonschlinkert/set-value
+[has-value]: https://github.com/jonschlinkert/has-value
 
 <!-- deps:mocha -->
