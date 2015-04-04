@@ -7,19 +7,21 @@
 
 'use strict';
 
+var Base = require('class-extend');
 var typeOf = require('kind-of');
 var expander = require('expander');
 var Options = require('option-cache');
 var extend = require('extend-shallow');
+var Emitter = require('component-emitter');
 var flatten = require('arr-flatten');
 var clone = require('clone-deep');
 var rest = require('array-rest');
+var hasOwnDeep = require('has-own-deep');
 var set = require('set-value');
 var get = require('get-value');
 var has = require('has-value');
 var forIn = require('for-in');
 var Plasma = require('plasma');
-var Events = require('./events');
 var expand = expander.process;
 var hasOwn = Object.prototype.hasOwnProperty;
 
@@ -36,17 +38,20 @@ var hasOwn = Object.prototype.hasOwnProperty;
  * @api public
  */
 
-var Cache = Events.extend({
-  constructor: function(o) {
-    Cache.__super__.constructor.call(this);
-    this.cache = o || {};
-    this.cache.data = this.cache.data || {};
-    Options.call(this, this.cache.options);
-    this._plasma = new Plasma();
-  }
-});
+function Cache (cache) {
+  Cache.__super__.constructor.call(this);
+  Emitter.call(this);
+  this.cache = cache || {};
+  this.cache.data = this.cache.data || {};
+  Options.call(this, this.cache.options);
+  this._ = this._ || {};
+  this._.plasma = new Plasma(this.cache.data);
+}
 
-Cache.extend = Events.extend;
+Base.extend(Cache.prototype);
+Cache.extend = Base.extend;
+
+extend(Cache.prototype, Emitter.prototype);
 extend(Cache.prototype, Options.prototype);
 
 /**
@@ -69,23 +74,19 @@ Cache.prototype.set = function(key, value, expand) {
     this.emit('set', key, value);
     return this;
   }
-
   if (expand) {
     value = this.process(value, this.cache);
     this.set(key, value, false);
   } else {
     set(this.cache, key, value);
   }
-
   this.emit('set', key, value);
   return this;
 };
 
 /**
- * Return the stored value of `key`. If the value
- * does **not** exist on the cache, you may pass
- * `true` as a second parameter to tell [set-object]
- * to initialize the value as an empty object.
+ * Return the stored value of `key`. Dot notation may be used
+ * to get [nested property values][get-value].
  *
  * ```js
  * cache.set('foo', 'bar');
@@ -99,51 +100,13 @@ Cache.prototype.set = function(key, value, expand) {
  * ```
  *
  * @param {*} `key`
- * @param {Boolean} `create`
+ * @param {Boolean} `escape`
  * @return {*}
  * @api public
  */
 
-Cache.prototype.get = function(key, create) {
-  if (!key) {
-    return this.cache;
-  }
-
-  var len = arguments.length;
-  var args = new Array(len);
-
-  for (var i = 0; i < len; i++) {
-    args[i] = arguments[i];
-  }
-
-  var len = args.length;
-  var val;
-
-  if (len === 1 && typeof key === 'string' && this.hasOwn(key)) {
-    return this.cache[key];
-  }
-
-  var last = args[args.length - 1];
-  if (last === true) {
-    create = last;
-    args.pop();
-  }
-
-  // Allow object paths to be defined as arrays: ['a', 'b', 'c'] => 'a.b.c'
-  if (Array.isArray(key) || (typeof key === 'string' && len > 1)) {
-    key = flatten(args).join('.');
-  }
-
-  if (key.indexOf('.') !== -1) {
-    val = get(this.cache, key, create);
-  }
-
-  if (typeof val === 'undefined' && create) {
-    set(this.cache, key, true);
-    return this.cache[key];
-  }
-
-  return val;
+Cache.prototype.get = function(key, escape) {
+  return key ? get(this.cache, key, escape) : this.cache;
 };
 
 /**
@@ -172,12 +135,42 @@ Cache.prototype.constant = function(key, value, namespace) {
   }
 
   namespace = namespace || 'cache';
-  if (!this[namespace]) {
-    this[namespace] = {};
-  }
-
+  this[namespace] = this[namespace] || {};
   this[namespace].__defineGetter__(key, getter);
   return this;
+};
+
+/**
+ * Return the keys on `this.cache`.
+ *
+ * ```js
+ * cache.keys();
+ * ```
+ *
+ * @return {Boolean}
+ * @api public
+ */
+
+Cache.prototype.keys = function(o) {
+  return Object.keys(o || this.cache);
+};
+
+/**
+ * Return true if `key` is an own, enumerable property
+ * of `this.cache` or the given `obj`.
+ *
+ * ```js
+ * cache.hasOwn([key]);
+ * ```
+ *
+ * @param  {String} `key`
+ * @param  {Object} `obj` Optionally pass an object to check.
+ * @return {Boolean}
+ * @api public
+ */
+
+ Cache.prototype.hasOwn = function(key, o) {
+  return hasOwn.call(o || this.cache, key);
 };
 
 /*
@@ -196,14 +189,8 @@ Cache.prototype.constant = function(key, value, namespace) {
  * @api public
  */
 
-Cache.prototype.exists = function(key) {
-  if (this.hasOwn(key)) {
-    return true;
-  }
-
-  var val = get(this.cache, key, true);
-  return typeof val !== 'undefined'
-    && val !== null;
+Cache.prototype.exists = function(key, escape) {
+  return hasOwnDeep(this.cache, key, escape);
 };
 
 /*
@@ -314,39 +301,6 @@ Cache.prototype.extend = function() {
 };
 
 /**
- * Return the keys on `this.cache`.
- *
- * ```js
- * cache.keys();
- * ```
- *
- * @return {Boolean}
- * @api public
- */
-
-Cache.prototype.keys = function(o) {
-  return Object.keys(o || this.cache);
-};
-
-/**
- * Return true if `key` is an own, enumerable property
- * of `this.cache` or the given `obj`.
- *
- * ```js
- * cache.hasOwn([key]);
- * ```
- *
- * @param  {String} `key`
- * @param  {Object} `obj` Optionally pass an object to check.
- * @return {Boolean}
- * @api public
- */
-
- Cache.prototype.hasOwn = function(key, o) {
-  return hasOwn.call(o || this.cache, key);
-};
-
-/**
  * Clone the given `obj` or `cache`.
  *
  * ```js
@@ -444,16 +398,17 @@ Cache.prototype.process = function(lookup, context) {
  * @api private
  */
 
-Cache.prototype.flattenData = function(data, name) {
-  name = name || 'data';
+Cache.prototype.flattenData = function(data, keys) {
+  keys = keys || 'data';
+  keys = !Array.isArray(keys) ? [keys] : keys;
 
-  name = !Array.isArray(name) ? [name] : name;
-  name.forEach(function (prop) {
-    if (data && data.hasOwnProperty(prop)) {
-      extend(data, data[prop]);
-      delete data[prop];
+  var len = keys.length;
+  while (len--) {
+    if (this.hasOwn(keys[len], data)) {
+      extend(data, data[keys[len]]);
+      delete data[keys[len]];
     }
-  });
+  }
   return data;
 };
 
@@ -512,7 +467,7 @@ Cache.prototype.extendData = function() {
  */
 
 Cache.prototype.plasma = function() {
-  return this._plasma.load.apply(this._plasma, arguments);
+  return this._.plasma.load.apply(this._.plasma, arguments);
 };
 
 /**
@@ -617,16 +572,16 @@ Cache.prototype.omit = function(keys) {
   }
 
   var omit = [];
-  var i = 0;
+  var j = 0;
 
   while (len--) {
-    omit = omit.concat(args[i++]);
+    omit = omit.concat(args[j++]);
   }
 
   var o = {};
 
   for (var key in this.cache) {
-    if (this.hasOwn(key, this.cache) && omit.indexOf(key) === -1) {
+    if (this.hasOwn(key) && omit.indexOf(key) === -1) {
       o[key] = this.cache[key];
     }
   }
@@ -652,8 +607,8 @@ Cache.prototype.omit = function(keys) {
 
 Cache.prototype.clear = function(key) {
   if (key) {
-    this.emit('clear', key);
     delete this.cache[key];
+    this.emit('clear', key);
   } else {
     this.cache = {};
     this.emit('clear');
