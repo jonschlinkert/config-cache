@@ -10,7 +10,6 @@
 var Base = require('class-extend');
 var typeOf = require('kind-of');
 var expander = require('expander');
-var Options = require('option-cache');
 var extend = require('extend-shallow');
 var Emitter = require('component-emitter');
 var flatten = require('arr-flatten');
@@ -39,20 +38,16 @@ var hasOwn = Object.prototype.hasOwnProperty;
  */
 
 function Cache (cache) {
-  Cache.__super__.constructor.call(this);
   Emitter.call(this);
   this.cache = cache || {};
   this.cache.data = this.cache.data || {};
-  Options.call(this, this.cache.options);
   this._ = this._ || {};
   this._.plasma = new Plasma(this.cache.data);
 }
 
 Base.extend(Cache.prototype);
 Cache.extend = Base.extend;
-
 extend(Cache.prototype, Emitter.prototype);
-extend(Cache.prototype, Options.prototype);
 
 /**
  * Assign `value` to `key` or return the value of `key`.
