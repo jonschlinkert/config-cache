@@ -15,7 +15,9 @@ var Emitter = require('component-emitter');
 var flatten = require('arr-flatten');
 var clone = require('clone-deep');
 var rest = require('array-rest');
+var union = require('arr-union');
 var hasOwnDeep = require('has-own-deep');
+var omit = require('object.omit');
 var set = require('set-value');
 var get = require('get-value');
 var has = require('has-value');
@@ -228,13 +230,12 @@ Cache.prototype.has = function(prop) {
  * @api public
  */
 
-Cache.prototype.union = function(key) {
-  var arr = this.get(key) || [];
-
-  if (!Array.isArray(arr)) {
-    throw new Error('config-cache#union expected an array but got:', arr);
+Cache.prototype.union = function(key, array) {
+  if (typeof key !== 'string') {
+    throw new Error('config-cache#union expects `key` to be a string.');
   }
 
+  var arr = this.get(key) || [];
   var len = arguments.length - 1;
   var args = new Array(len);
 
@@ -243,6 +244,7 @@ Cache.prototype.union = function(key) {
   }
 
   this.set(key, union(arr, flatten(args)));
+  this.emit('union', key);
   return this;
 };
 
@@ -356,13 +358,7 @@ Cache.prototype.methods = function(o) {
 
 Cache.prototype.process = function(lookup, context) {
   var len = arguments.length;
-  var args = new Array(len);
-
-  for (var i = 0; i < len; i++) {
-    args[i] = arguments[i];
-  }
-
-  if (!args.length) {
+  if (!len) {
     lookup = context = this.cache.data;
   } else {
     context = context || this.cache.data;
@@ -376,7 +372,7 @@ Cache.prototype.process = function(lookup, context) {
     imports: methods
   });
 
-  if (!args.length) {
+  if (!len) {
     extend(this.cache.data, o);
   }
   return o;
@@ -390,7 +386,6 @@ Cache.prototype.process = function(lookup, context) {
  *
  * @param {Object} `data`
  * @return {Object} Returns the flattened object.
- * @api private
  */
 
 Cache.prototype.flattenData = function(data, keys) {
@@ -523,6 +518,7 @@ Cache.prototype.data = function() {
   }
 
   this.extendData(o);
+  this.emit('data');
   return this;
 };
 
@@ -555,34 +551,10 @@ Cache.prototype.data = function() {
  */
 
 Cache.prototype.omit = function(keys) {
-  if (keys == null) {
-    return this;
-  }
-
-  var len = arguments.length;
-  var args = new Array(len);
-
-  for (var i = 0; i < len; i++) {
-    args[i] = arguments[i];
-  }
-
-  var omit = [];
-  var j = 0;
-
-  while (len--) {
-    omit = omit.concat(args[j++]);
-  }
-
-  var o = {};
-
-  for (var key in this.cache) {
-    if (this.hasOwn(key) && omit.indexOf(key) === -1) {
-      o[key] = this.cache[key];
-    }
-  }
-
-  this.cache = o;
-  this.emit('omit');
+  if (keys == null) return this;
+  keys = arrayify(keys);
+  this.cache = omit(this.cache, keys);
+  this.emit('omit', keys);
   return this;
 };
 
@@ -611,21 +583,16 @@ Cache.prototype.clear = function(key) {
 };
 
 /**
- * Utility function for concatenating array
- * elements.
- *
- * @api private
+ * Cast `val` to an array
  */
 
-function union() {
-  return flatten([].concat.apply([], arguments));
+function arrayify(val) {
+  return Array.isArray(val) ? val : [val];
 }
 
 /**
  * Utility function for concatenating array
  * elements.
- *
- * @api private
  */
 
 function methods(o) {
