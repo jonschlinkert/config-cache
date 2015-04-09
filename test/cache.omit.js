@@ -7,6 +7,7 @@
 
 'use strict';
 
+var assert = require('assert');
 var should = require('should');
 var Config = require('..');
 var config;
@@ -18,7 +19,6 @@ describe('config omit', function () {
   });
 
   describe('.omit()', function () {
-
     it('should omit a value from the cache', function () {
       config.set('a', 'b');
       config.set('b', 'c');
@@ -29,8 +29,8 @@ describe('config omit', function () {
       config.omit('a');
 
       // property should not be on the cache
-      (config.get('a') == null).should.be.true;
-      (config.get('b') === 'c').should.be.true;
+      assert(config.get('a') == null);
+      assert(config.get('b') === 'c');
     });
 
     it('should omit an array of values from the cache', function () {
@@ -51,12 +51,11 @@ describe('config omit', function () {
       config.omit(['a', 'b', 'c', 'd']);
 
       // properties should not be on the cache
-      (config.get('a') == null).should.be.true;
-      (config.get('b') == null).should.be.true;
-      (config.get('c') == null).should.be.true;
-      (config.get('d') == null).should.be.true;
-      (config.get('e') === 'e').should.be.true;
+      assert(config.get('a') == null);
+      assert(config.get('b') == null);
+      assert(config.get('c') == null);
+      assert(config.get('d') == null);
+      assert(config.get('e') === 'e');
     });
-
   });
 });

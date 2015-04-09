@@ -65,10 +65,10 @@ describe('config process', function () {
         config.set({whistle: '<%= upper(fez) %>-<%= upper(pop) %>'});
         config.get('whistle').should.equal('<%= upper(fez) %>-<%= upper(pop) %>');
 
-        var a = config.process(config.get('whistle'), config.get());
+        var a = config.process(config.get('whistle'), config.cache);
         a.should.equal('BANG-BOOM-POW!');
 
-        var b = config.process(config.get(), config.get());
+        var b = config.process(config.get(), config.cache);
         b.whistle.should.equal('BANG-BOOM-POW!');
       });
     });

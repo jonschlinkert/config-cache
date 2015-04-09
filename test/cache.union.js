@@ -20,10 +20,10 @@ describe('union():', function () {
     config.set(obj);
   })
 
-  it('should throw an error on bad args:', function() {
+  it('should throw an error when the first arg is not a string:', function() {
     (function () {
       config.union(null);
-    }).should.throw('config-cache#union expected an array but got:');
+    }).should.throw('config-cache#union expects `key` to be a string.');
   });
 
   it('should set a new array on the given property', function() {
@@ -31,9 +31,14 @@ describe('union():', function () {
     config.cache.x.should.eql([ 'one', 'two' ]);
   });
 
-  it('should set a new array `cache`.', function() {
+  it('should set a nested value', function() {
     config.union('x.y.z', ['one', 'two']);
     config.cache.x.should.eql({ y: { z: [ 'one', 'two' ] } });
+  });
+
+  it('should allow multiple arrays to be passed:', function() {
+    config.union('x.y.z', ['one', 'two'], ['three']);
+    config.cache.x.should.eql({ y: { z: [ 'one', 'two', 'three' ] } });
   });
 
   it('should add values to an existing array.', function() {
