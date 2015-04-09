@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "arr-flatten": "^1.0.1",
+    "arr-union": "^2.0.1",
     "array-rest": "^0.1.1",
     "class-extend": "^0.1.1",
     "clone-deep": "^0.1.1",
@@ -51,6 +52,7 @@
     "has-own-deep": "^0.1.4",
     "has-value": "^0.2.0",
     "kind-of": "^1.1.0",
+    "object.omit": "^1.1.0",
     "plasma": "^0.8.2",
     "set-value": "^0.1.4"
   },
