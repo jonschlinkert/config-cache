@@ -565,20 +565,20 @@ Cache.prototype.omit = function(keys) {
  * **Example:**
  *
  * ```js
- * cache.clear();
+ * cache.del();
  * ```
  *
  * @chainable
  * @api public
  */
 
-Cache.prototype.clear = function(key) {
+Cache.prototype.del = function(key) {
   if (key) {
     delete this.cache[key];
-    this.emit('clear', key);
+    this.emit('del', key);
   } else {
     this.cache = {};
-    this.emit('clear');
+    this.emit('del');
   }
 };
 

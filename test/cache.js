@@ -127,19 +127,19 @@ describe('Cache', function () {
         called.should.be.true;
       });
 
-      it('should emit `clear` when an item is removed from the cache', function () {
+      it('should emit `del` when an item is removed from the cache', function () {
         var called = false;
         var config = new Cache();
         config.set('one', 'a');
         config.set('two', 'c');
 
-        config.on('clear', function (key, value) {
+        config.on('del', function (key, value) {
           called = true;
           assert(config.get(key) == undefined);
         });
 
-        config.clear('one');
-        config.clear('two');
+        config.del('one');
+        config.del('two');
         called.should.be.true;
       });
 
