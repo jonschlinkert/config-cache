@@ -11,7 +11,7 @@ var should = require('should');
 var Config = require('..');
 var config;
 
-describe('config data', function() {
+describe('.extend', function() {
   beforeEach(function() {
     config = new Config();
   });

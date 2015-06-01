@@ -21,7 +21,7 @@ describe('config get/set', function () {
   describe('set()/get():', function () {
     it('should return immediate property value.', function() {
       config.set('a', 1);
-      config.get('a').should.equal(1)
+      config.get('a').should.equal(1);
     });
     it('should return nested property value.', function() {
       config.set('b.c.d', 1);
@@ -98,39 +98,8 @@ describe('config get/set', function () {
       config.get('cc').should.equal('dd');
     });
 
-    it('should expand template strings in the config.', function () {
-      config
-        .set('l', 'm')
-        .set('j', {k: '${l}'}, true);
-      config.cache.j.k.should.eql('m');
-      config.get('j.k').should.eql('m');
-    });
-
     it('should return undefined when not set', function () {
       config.set('a', undefined).should.equal(config);
-    });
-  });
-
-  describe('.get()', function () {
-    it('should return undefined when no set', function () {
-      (config.get('a') == null).should.be.true;
-    });
-
-    it('should otherwise return the value', function () {
-      config.set('a', 'b');
-      config.get('a').should.equal('b');
-    });
-  });
-
-
-  describe('.exists()', function () {
-    it('should return `false` when not set', function () {
-      config.exists('alsjls').should.be.false;
-    });
-
-    it('should return `true` when set.', function () {
-      config.set('baba', 'zz');
-      config.exists('baba').should.be.ok;
     });
   });
 });

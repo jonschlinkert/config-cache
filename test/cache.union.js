@@ -13,7 +13,7 @@ var Config = require('..');
 var config;
 var obj;
 
-describe('union():', function () {
+describe('.union:', function () {
   beforeEach(function () {
     config = new Config();
     obj = {a: {b: ['a', 'b']}};

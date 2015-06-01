@@ -13,7 +13,7 @@ var Config = require('..');
 var config;
 var obj;
 
-describe('.get()', function () {
+describe('.get', function () {
   beforeEach(function () {
     config = new Config();
     obj = {a: {b: {c: 1, d: '', e: null, f: undefined, 'g.h.i': 2}}};
@@ -21,6 +21,13 @@ describe('.get()', function () {
   })
 
   describe('get() - add:', function () {
+    it('should return undefined when no set', function () {
+      (typeof config.get('zzz') === 'undefined').should.be.true;
+    });
+    it('should otherwise return the value', function () {
+      config.set('a', 'b');
+      config.get('a').should.equal('b');
+    });
     it('should get immediate properties.', function() {
       config.get('a').should.eql(obj.a);
     });
