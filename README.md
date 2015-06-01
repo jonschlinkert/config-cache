@@ -53,7 +53,25 @@ Initialize a new `Cache`
 var cache = new Cache();
 ```
 
-### [.set](index.js#L73)
+### [.mixin](index.js#L54)
+
+Static method for mixing `Cache` properties onto `obj`
+
+**Params**
+
+* `obj` **{Object}**
+* `returns` **{Object}**
+
+**Example**
+
+```js
+function App() {
+  Cache.call(this);
+}
+Cache.mixin(App.prototype);
+```
+
+### [.set](index.js#L81)
 
 Assign `value` to `key` or return the value of `key`.
 
@@ -70,7 +88,7 @@ Assign `value` to `key` or return the value of `key`.
 cache.set(key, value);
 ```
 
-### [.get](index.js#L110)
+### [.get](index.js#L118)
 
 Return the stored value of `key`. Dot notation may be used to get [nested property values](https://github.com/jonschlinkert/get-value).
 
@@ -93,7 +111,7 @@ cache.get('data', 'name');
 //=> 'Jon'
 ```
 
-### [.constant](index.js#L127)
+### [.constant](index.js#L135)
 
 Set a constant on the cache.
 
@@ -108,7 +126,7 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.union](index.js#L158)
+### [.union](index.js#L166)
 
 Add values to an array on the `cache`.
 
@@ -125,7 +143,7 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.extend](index.js#L200)
+### [.extend](index.js#L208)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -151,7 +169,7 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.del](index.js#L229)
+### [.del](index.js#L237)
 
 Remove `keys` from the cache. If no value is specified the entire cache is reset.
 
@@ -200,7 +218,7 @@ Visit the [expander](https://github.com/tkellen/expander)docs for more info.
 * [loader-cache](https://github.com/jonschlinkert/loader-cache): Register loader functions that dynamically read, parse or otherwise transform file contents when the name… [more](https://github.com/jonschlinkert/loader-cache)
 * [map-cache](https://github.com/jonschlinkert/map-cache): Basic cache object for storing key-value pairs.
 * [option-cache](https://github.com/jonschlinkert/option-cache): Simple API for managing options in JavaScript applications.
-* [plasma-cache](https://github.com/jonschlinkert/plasma-cache): Object cache for Plasma.
+* [plasma-cache](https://github.com/jonschlinkert/plasma-cache): Object cache for [Plasma].
 * [parser-cache](https://github.com/jonschlinkert/parser-cache): Cache and load parsers, similiar to consolidate.js engines.
 * [set-value](https://github.com/jonschlinkert/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths.
 
