@@ -2,10 +2,32 @@
 
 > General purpose JavaScript object storage methods.
 
+## Breaking changes in 5.0!
+
+Major breaking changes were made in 5.0!
+
+In an effort to simplify the library, the following methods were removed:
+
+* `clone`: use [clone-deep](https://github.com/jonschlinkert/clone-deep), example: `var obj = cloneDeep(config.cache)`
+* `keys`: use `Object.keys(config.cache)`
+* `omit`: use `.del()`
+* `exists`: use `config.cache.hasOwnProperty()` or [has-value](https://github.com/jonschlinkert/has-value)
+* `has`: use `config.cache.hasownProperty()` or [has-value](https://github.com/jonschlinkert/has-value)
+* `hasOwn`: use `config.cache.hasOwnProperty()` or [has-value](https://github.com/jonschlinkert/has-value)
+
+The following data methods were also removed, use [plasma-cache](https://github.com/jonschlinkert/plasma-cache)if you need these methods:
+
+* `data`
+* `process`
+* `plasma`
+* `extendData`
+
+## Install
+
 Install with [npm](https://www.npmjs.com/)
 
-```bash
-npm i config-cache --save
+```sh
+$ npm i config-cache --save
 ```
 
 ## Usage
@@ -17,7 +39,7 @@ var config = new Config();
 
 ## API
 
-### [Cache](index.js#L42)
+### [Cache](index.js#L32)
 
 Initialize a new `Cache`
 
@@ -31,14 +53,14 @@ Initialize a new `Cache`
 var cache = new Cache();
 ```
 
-### [.set](index.js#L68)
+### [.set](index.js#L73)
 
 Assign `value` to `key` or return the value of `key`.
 
 **Params**
 
 * `key` **{String}**
-* `value` __{_}_*
+* `value` **{*}**
 * `expand` **{Boolean}**: Resolve template strings with [expander](https://github.com/tkellen/expander)
 * `returns` **{Object}** `Cache`: to enable chaining
 
@@ -48,15 +70,15 @@ Assign `value` to `key` or return the value of `key`.
 cache.set(key, value);
 ```
 
-### [.get](index.js#L105)
+### [.get](index.js#L110)
 
 Return the stored value of `key`. Dot notation may be used to get [nested property values](https://github.com/jonschlinkert/get-value).
 
 **Params**
 
-* `key` __{_}_*
+* `key` **{*}**
 * `escape` **{Boolean}**
-* `returns` __{_}_*
+* `returns` **{*}**
 
 **Example**
 
@@ -71,14 +93,14 @@ cache.get('data', 'name');
 //=> 'Jon'
 ```
 
-### [.constant](index.js#L124)
+### [.constant](index.js#L127)
 
 Set a constant on the cache.
 
 **Params**
 
 * `key` **{String}**
-* `value` __{_}_*
+* `value` **{*}**
 
 **Example**
 
@@ -86,69 +108,9 @@ Set a constant on the cache.
 cache.constant('site.title', 'Foo');
 ```
 
-### [.keys](index.js#L151)
+### [.union](index.js#L158)
 
-Return the keys on `this.cache`.
-
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-cache.keys();
-```
-
-### [.hasOwn](index.js#L169)
-
-Return true if `key` is an own, enumerable property of `this.cache` or the given `obj`.
-
-**Params**
-
-* `key` **{String}**
-* `obj` **{Object}**: Optionally pass an object to check.
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-cache.hasOwn([key]);
-```
-
-### [.exists](index.js#L189)
-
-Return true if `key` exists in `cache`. Dot notation may be used for nested properties.
-
-**Params**
-
-* `key` **{String}**
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-cache.exists('author.name');
-//=> true
-```
-
-### [.has](index.js#L209)
-
-Return true if `property` exists and has a non-null value. Dot notation may be used for nested properties.
-
-**Params**
-
-* `property` **{String}**
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-cache.has('author.name');
-//=> true
-```
-
-### [.union](index.js#L233)
-
-Add values to an array on the `cache`. This method is chainable.
+Add values to an array on the `cache`.
 
 * `returns` **{Object}** `Cache`: to enable chaining
 
@@ -163,7 +125,7 @@ cache
 // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
 ```
 
-### [.extend](index.js#L280)
+### [.extend](index.js#L200)
 
 Extend the `cache` with the given object. This method is chainable.
 
@@ -189,145 +151,9 @@ cache
   .extend('a.b.c', {fez: 'bang'});
 ```
 
-### [.clone](index.js#L312)
+### [.del](index.js#L229)
 
-Clone the given `obj` or `cache`.
-
-**Params**
-
-* `obj` **{Object}**: Optionally pass an object to clone.
-* `returns` **{Boolean}**
-
-**Example**
-
-```js
-cache.clone();
-```
-
-### [.methods](index.js#L329)
-
-Return methods on `this.cache` or the given `obj`.
-
-**Params**
-
-* `obj` **{Object}**
-* `returns` **{Array}**
-
-**Example**
-
-```js
-cache.methods('foo')
-//=> ['set', 'get', 'enable', ...]
-```
-
-### [Data methods](index.js#L342)
-
-> Methods for reading data files, processing template strings and
-extending the `cache.data` object.
-
-### [.process](index.js#L359)
-
-Use [expander](https://github.com/tkellen/expander)to recursively expand template strings into their resolved values.
-
-**Params**
-
-* `lookup` __{_}_*: Any value to process, usually strings with a cache template, like `<%= foo %>` or `${foo}`.
-* `opts` __{_}_*: Options to pass to Lo-Dash `  _.template`.
-
-**Example**
-
-```js
-cache.process({a: '<%= b %>', b: 'c'});
-//=> {a: 'c', b: 'c'}
-```
-
-### [.extendData](index.js#L422)
-
-Extend the `cache.data` object with the given data. This method is chainable.
-
-* `returns` **{Object}** `Cache`: to enable chaining
-
-**Example**
-
-```js
-cache
-  .extendData({foo: 'bar'}, {baz: 'quux'});
-  .extendData({fez: 'bang'});
-```
-
-### [.plasma](index.js#L459)
-
-Extend the `data` object with the value returned by [plasma](https://github.com/jonschlinkert/plasma).
-
-**Example:**
-
-See the [plasma](https://github.com/jonschlinkert/plasma)documentation for all available options.
-
-**Params**
-
-* `data` **{Object|String|Array}**: File path(s), glob pattern, or object of data.
-* `options` **{Object}**: Options to pass to plasma.
-
-**Example**
-
-```js
-cache
-  .plasma({foo: 'bar'}, {baz: 'quux'});
-  .plasma({fez: 'bang'});
-```
-
-### [.data](index.js#L491)
-
-Extend the `cache.data` object with data from a JSON or YAML file, or by passing an object directly - glob patterns or file paths may be used.
-
-When `true` is passed as the last argumemnt data will
-be processed by [expander](https://github.com/tkellen/expander)before extending `cache.data`.
-
-**Params**
-
-* `values` **{Object|Array|String}**: Values to pass to plasma.
-* `process` **{Boolean}**: If `true`,
-* `returns` **{Object}** `Cache`: to enable chaining
-
-**Examples**
-
-```js
-cache
-  .data({a: 'b'})
-  .data({c: 'd'});
-
-console.log(config.cache);
-//=> {data: {a: 'b', c: 'd'}}
-```
-
-```js
-cache.data({a: '<%= b %>', b: 'z'})
-//=> {data: {a: 'z', b: 'z'}}
-```
-
-### [.omit](index.js#L553)
-
-Omit properties from the `cache`.
-
-**Example:**
-
-* `returns` **{Object}** `Cache`: to enable chaining
-
-**Example**
-
-```js
-cache
-  .omit('foo');
-  .omit('foo', 'bar');
-  .omit(['foo']);
-  .omit(['foo', 'bar']);
-```
-
-### [.del](index.js#L575)
-
-Remove `key` from the cache, or if no value is specified the entire cache is reset.
-
-**Example:**
+Remove `keys` from the cache. If no value is specified the entire cache is reset.
 
 **Example**
 
@@ -369,11 +195,12 @@ Visit the [expander](https://github.com/tkellen/expander)docs for more info.
 * [cache-base](https://github.com/jonschlinkert/cache-base): Generic object cache for node.js/javascript projects.
 * [engine-cache](https://github.com/jonschlinkert/engine-cache): express.js inspired template-engine manager.
 * [get-value](https://github.com/jonschlinkert/get-value): Use property paths (`  a.b.c`) get a nested value from an object.
-* [helper-cache](https://github.com/jonschlinkert/helper-cache): Easily register and get helper functions to be passed to any template engine or node.js… [more](https://github.com/jonschlinkert/helper-cache)
 * [has-value](https://github.com/jonschlinkert/has-value): Returns true if a value exists, false if empty. Works with deeply nested values using… [more](https://github.com/jonschlinkert/has-value)
+* [helper-cache](https://github.com/jonschlinkert/helper-cache): Easily register and get helper functions to be passed to any template engine or node.js… [more](https://github.com/jonschlinkert/helper-cache)
 * [loader-cache](https://github.com/jonschlinkert/loader-cache): Register loader functions that dynamically read, parse or otherwise transform file contents when the name… [more](https://github.com/jonschlinkert/loader-cache)
 * [map-cache](https://github.com/jonschlinkert/map-cache): Basic cache object for storing key-value pairs.
 * [option-cache](https://github.com/jonschlinkert/option-cache): Simple API for managing options in JavaScript applications.
+* [plasma-cache](https://github.com/jonschlinkert/plasma-cache): Object cache for Plasma.
 * [parser-cache](https://github.com/jonschlinkert/parser-cache): Cache and load parsers, similiar to consolidate.js engines.
 * [set-value](https://github.com/jonschlinkert/set-value): Create nested values and any intermediaries using dot notation (`'a.b.c'`) paths.
 
@@ -385,8 +212,8 @@ Pull requests and stars are always welcome. For bugs and feature requests, [plea
 
 Install dev dependencies:
 
-```bash
-npm i -d && npm test
+```sh
+$ npm i -d && npm test
 ```
 
 ## Author
@@ -398,9 +225,9 @@ npm i -d && npm test
 
 ## License
 
-Copyright (c) 2015 Jon Schlinkert
+Copyright © 2015 Jon Schlinkert
 Released under the MIT license.
 
 ***
 
-_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on May 07, 2015._
+_This file was generated by [verb-cli](https://github.com/assemble/verb-cli) on June 01, 2015._
