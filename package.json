@@ -1,17 +1,10 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "4.0.0",
+  "version": "5.0.1",
   "homepage": "https://github.com/jonschlinkert/config-cache",
-  "author": {
-    "name": "Jon Schlinkert",
-    "url": "https://github.com/jonschlinkert"
-  },
-  "authors": [
-    {
-      "name": "Jon Schlinkert",
-      "username": "jonschlinkert"
-    },
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "maintainers": [
     {
       "name": "Brian Woodward",
       "username": "doowb"
@@ -24,10 +17,7 @@
   "bugs": {
     "url": "https://github.com/jonschlinkert/config-cache/issues"
   },
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/jonschlinkert/config-cache/blob/master/LICENSE"
-  },
+  "license": "MIT",
   "files": [
     "index.js"
   ],
@@ -40,21 +30,13 @@
   },
   "dependencies": {
     "arr-flatten": "^1.0.1",
-    "arr-union": "^2.0.1",
-    "array-rest": "^0.1.1",
-    "class-extend": "^0.1.1",
-    "clone-deep": "^0.1.1",
+    "array-union": "^1.0.1",
     "component-emitter": "^1.2.0",
-    "expander": "^0.3.3",
-    "extend-shallow": "^1.1.2",
-    "for-in": "^0.1.4",
+    "extend-shallow": "^1.1.4",
     "get-value": "^1.1.4",
-    "has-own-deep": "^0.1.4",
-    "has-value": "^0.2.0",
-    "kind-of": "^1.1.0",
+    "kind-of": "^2.0.0",
     "object.omit": "^1.1.0",
-    "plasma": "^0.8.2",
-    "set-value": "^0.1.6"
+    "set-value": "^0.2.0"
   },
   "devDependencies": {
     "mocha": "^2.2.1",
