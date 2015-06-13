@@ -1,49 +1,50 @@
-/*!
- * config-cache <https://github.com/jonschlinkert/config-cache>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
 'use strict';
 
-var typeOf = require('kind-of');
-var extend = require('extend-shallow');
-var flatten = require('arr-flatten');
+/**
+ * Module dependencies
+ */
+
 var Emitter = require('component-emitter');
-var union = require('array-union');
-var omit = require('object.omit');
-var set = require('set-value');
-var get = require('get-value');
+var lazy = require('lazy-cache')(require);
 
 /**
- * Initialize a new `Cache`
+ * Lazily required module dependencies
+ */
+
+var omit = lazy('object.omit');
+var typeOf = lazy('kind-of');
+var extend = lazy('extend-shallow');
+var flatten = lazy('arr-flatten');
+var union = lazy('array-union');
+var set = lazy('set-value');
+var get = lazy('get-value');
+
+/**
+ * Initialize a new `Config`, optionally passing an object
+ * to initialize with.
  *
  * ```js
- * var cache = new Cache();
+ * var cache = new Config();
  * ```
- *
- * @class Cache
- * @param {Object} `obj` Optionally pass an object to initialize with.
- * @constructor
+ * @param {Object} `cache`
  * @api public
  */
 
-function Cache(obj) {
+function Config(cache) {
   Emitter.call(this);
-  this.cache = {};
+  this.cache = cache || {};
 }
 
-Emitter(Cache.prototype);
+Emitter(Config.prototype);
 
 /**
- * Static method for mixing `Cache` properties onto `obj`
+ * Static method for mixing `Config` prototype properties onto `obj`.
  *
  * ```js
  * function App() {
- *   Cache.call(this);
+ *   Config.call(this);
  * }
- * Cache.mixin(App.prototype);
+ * Config.mixin(App.prototype);
  * ```
  *
  * @param  {Object} `obj`
@@ -51,44 +52,37 @@ Emitter(Cache.prototype);
  * @api public
  */
 
-Cache.mixin = function(obj) {
-  for (var key in this) {
-    obj.constructor[key] = this[key];
+Config.mixin = function(receiver, provider) {
+  provider = provider || this;
+  for (var key in provider) {
+    receiver.constructor[key] = provider[key];
   }
-  obj.constructor.prototype = Object.create(this.prototype);
-  for (var key in obj) {
-    obj.constructor.prototype[key] = obj[key];
+  receiver.constructor.prototype = Object.create(provider.prototype);
+  for (var prop in receiver) {
+    receiver.constructor.prototype[prop] = receiver[prop];
   }
-  // save a reference to `this.prototype`
-  obj.constructor.__super__ = this.prototype;
-  return obj.constructor;
+  receiver.constructor.__super__ = provider.prototype;
+  return receiver.constructor;
 };
 
 /**
  * Assign `value` to `key` or return the value of `key`.
  *
  * ```js
- * cache.set(key, value);
+ * config.set(key, value);
  * ```
  *
  * @param {String} `key`
  * @param {*} `value`
- * @param {Boolean} `expand` Resolve template strings with [expander]
- * @return {Object} `Cache` to enable chaining
+ * @return {Object} `Config` to enable chaining
  * @api public
  */
 
-Cache.prototype.set = function(key, value, expand) {
-  if (arguments.length === 1 && typeOf(key) === 'object') {
+Config.prototype.set = function(key, value) {
+  if (arguments.length === 1 && typeOf()(key) === 'object') {
     this.extend(key);
-    this.emit('set', key, value);
-    return this;
-  }
-  if (expand) {
-    value = this.process(value, this.cache);
-    this.set(key, value, false);
   } else {
-    set(this.cache, key, value);
+    set()(this.cache, key, value);
   }
   this.emit('set', key, value);
   return this;
@@ -99,13 +93,13 @@ Cache.prototype.set = function(key, value, expand) {
  * to get [nested property values][get-value].
  *
  * ```js
- * cache.set('foo', 'bar');
- * cache.get('foo');
+ * config.set('foo', 'bar');
+ * config.get('foo');
  * // => "bar"
  *
  * // also takes an array or list of property paths
- * cache.set({data: {name: 'Jon'}})
- * cache.get('data', 'name');
+ * config.set({data: {name: 'Jon'}})
+ * config.get('data', 'name');
  * //=> 'Jon'
  * ```
  *
@@ -115,15 +109,16 @@ Cache.prototype.set = function(key, value, expand) {
  * @api public
  */
 
-Cache.prototype.get = function(key, escape) {
-  return key ? get(this.cache, key, escape) : this.cache;
+Config.prototype.get = function(key, escape) {
+  return key ? get()(this.cache, key, escape) : this.cache;
 };
 
 /**
- * Set a constant on the cache.
+ * Create a constant (getter/setter) for setting and getting values
+ * on the given `namespace` or `this.cache`.
  *
  * ```js
- * cache.constant('site.title', 'Foo');
+ * config.constant('site.title', 'Foo');
  * ```
  *
  * @param {String} `key`
@@ -132,7 +127,7 @@ Cache.prototype.get = function(key, escape) {
  * @api public
  */
 
-Cache.prototype.constant = function(key, value, namespace) {
+Config.prototype.constant = function(key, value, namespace) {
   var getter;
   if (typeof value !== 'function'){
     getter = function() {
@@ -152,18 +147,18 @@ Cache.prototype.constant = function(key, value, namespace) {
  *
  * ```js
  * // config.cache['foo'] => ['a.hbs', 'b.hbs']
- * cache
+ * config
  *   .union('foo', ['b.hbs', 'c.hbs'], ['d.hbs']);
  *   .union('foo', ['e.hbs', 'f.hbs']);
  *
  * // config.cache['foo'] => ['a.hbs', 'b.hbs', 'c.hbs', 'd.hbs', 'e.hbs', 'f.hbs']
  * ```
  * @chainable
- * @return {Object} `Cache` to enable chaining
+ * @return {Object} `Config` to enable chaining
  * @api public
  */
 
-Cache.prototype.union = function(key/*, array*/) {
+Config.prototype.union = function(key/*, array*/) {
   if (typeof key !== 'string') {
     throw new Error('config-cache#union expects `key` to be a string.');
   }
@@ -174,7 +169,7 @@ Cache.prototype.union = function(key/*, array*/) {
   for (var i = 0; i < len; i++) {
     args[i] = arguments[i + 1];
   }
-  this.set(key, union(arr, flatten(args)));
+  this.set(key, union()(arr, flatten()(args)));
   this.emit('union', key);
   return this;
 };
@@ -184,7 +179,7 @@ Cache.prototype.union = function(key/*, array*/) {
  * This method is chainable.
  *
  * ```js
- * cache
+ * config
  *   .extend({foo: 'bar'}, {baz: 'quux'});
  *   .extend({fez: 'bang'});
  * ```
@@ -192,7 +187,7 @@ Cache.prototype.union = function(key/*, array*/) {
  * Or define the property to extend:
  *
  * ```js
- * cache
+ * config
  *   // extend `cache.a`
  *   .extend('a', {foo: 'bar'}, {baz: 'quux'})
  *   // extend `cache.b`
@@ -201,24 +196,25 @@ Cache.prototype.union = function(key/*, array*/) {
  *   .extend('a.b.c', {fez: 'bang'});
  * ```
  * @chainable
- * @return {Object} `Cache` to enable chaining
+ * @return {Object} `Config` to enable chaining
  * @api public
  */
 
-Cache.prototype.extend = function() {
+Config.prototype.extend = function() {
   var len = arguments.length;
   var args = new Array(len);
   for (var i = 0; i < len; i++) {
     args[i] = arguments[i];
   }
+  var e = extend();
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = extend.apply(extend, union([o], args.slice(1)));
+    o = e.apply(e, union()([o], args.slice(1)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
-  extend.apply(extend, union([this.cache], args));
+  e.apply(e, union()([this.cache], args));
   this.emit('extend');
   return this;
 };
@@ -228,20 +224,21 @@ Cache.prototype.extend = function() {
  * specified the entire cache is reset.
  *
  * ```js
- * cache.del();
+ * config.del();
  * ```
  * @chainable
  * @api public
  */
 
-Cache.prototype.del = function(keys) {
-  this.cache = keys ? omit(this.cache, keys) : {};
+Config.prototype.del = function(keys) {
+  this.cache = keys ? omit()(this.cache, keys) : {};
   this.emit('del', keys);
   return this;
 };
 
 /**
- * Expose `Cache`
+ * Expose `Config`
  */
 
-module.exports = Cache;
+module.exports = Config;
+/* deps: arr-flatten array-union extend-shallow get-value kind-of object.omit set-value */
