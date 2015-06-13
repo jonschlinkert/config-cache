@@ -24,7 +24,7 @@ var get = lazy('get-value');
  * to initialize with.
  *
  * ```js
- * var cache = new Config();
+ * var config = new Config();
  * ```
  * @param {Object} `cache`
  * @api public
