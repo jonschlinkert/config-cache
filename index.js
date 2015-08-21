@@ -11,13 +11,13 @@ var lazy = require('lazy-cache')(require);
  * Lazily required module dependencies
  */
 
-var omit = lazy('object.omit');
-var typeOf = lazy('kind-of');
-var extend = lazy('extend-shallow');
-var flatten = lazy('arr-flatten');
-var union = lazy('array-union');
-var set = lazy('set-value');
-var get = lazy('get-value');
+lazy('object.omit', 'omit');
+lazy('kind-of', 'typeOf');
+lazy('extend-shallow', 'extend');
+lazy('arr-flatten', 'flatten');
+lazy('array-union', 'union');
+lazy('set-value', 'set');
+lazy('get-value', 'get');
 
 /**
  * Initialize a new `Config`, optionally passing an object
@@ -79,10 +79,10 @@ Config.mixin = function(receiver, provider) {
  */
 
 Config.prototype.set = function(key, value) {
-  if (arguments.length === 1 && typeOf()(key) === 'object') {
+  if (arguments.length === 1 && lazy.typeOf(key) === 'object') {
     this.extend(key);
   } else {
-    set()(this.cache, key, value);
+    lazy.set(this.cache, key, value);
   }
   this.emit('set', key, value);
   return this;
@@ -110,36 +110,7 @@ Config.prototype.set = function(key, value) {
  */
 
 Config.prototype.get = function(key, escape) {
-  return key ? get()(this.cache, key, escape) : this.cache;
-};
-
-/**
- * Create a constant (getter/setter) for setting and getting values
- * on the given `namespace` or `this.cache`.
- *
- * ```js
- * config.constant('site.title', 'Foo');
- * ```
- *
- * @param {String} `key`
- * @param {*} `value`
- * @chainable
- * @api public
- */
-
-Config.prototype.constant = function(key, value, namespace) {
-  var getter;
-  if (typeof value !== 'function'){
-    getter = function() {
-      return value;
-    };
-  } else {
-    getter = value;
-  }
-  namespace = namespace || 'cache';
-  this[namespace] = this[namespace] || {};
-  this[namespace].__defineGetter__(key, getter);
-  return this;
+  return key ? lazy.get(this.cache, key, escape) : this.cache;
 };
 
 /**
@@ -169,7 +140,7 @@ Config.prototype.union = function(key/*, array*/) {
   for (var i = 0; i < len; i++) {
     args[i] = arguments[i + 1];
   }
-  this.set(key, union()(arr, flatten()(args)));
+  this.set(key, lazy.union(arr, lazy.flatten(args)));
   this.emit('union', key);
   return this;
 };
@@ -206,15 +177,15 @@ Config.prototype.extend = function() {
   for (var i = 0; i < len; i++) {
     args[i] = arguments[i];
   }
-  var e = extend();
+  var extend = lazy.extend;
   if (typeof args[0] === 'string') {
     var o = this.get(args[0]) || {};
-    o = e.apply(e, union()([o], args.slice(1)));
+    o = extend.apply(extend, lazy.union([o], args.slice(1)));
     this.set(args[0], o);
     this.emit('extend');
     return this;
   }
-  e.apply(e, union()([this.cache], args));
+  extend.apply(extend, lazy.union([this.cache], args));
   this.emit('extend');
   return this;
 };
@@ -231,7 +202,7 @@ Config.prototype.extend = function() {
  */
 
 Config.prototype.del = function(keys) {
-  this.cache = keys ? omit()(this.cache, keys) : {};
+  this.cache = keys ? lazy.omit(this.cache, keys) : {};
   this.emit('del', keys);
   return this;
 };
@@ -241,4 +212,3 @@ Config.prototype.del = function(keys) {
  */
 
 module.exports = Config;
-/* deps: arr-flatten array-union extend-shallow get-value kind-of object.omit set-value */
