@@ -1,8 +1,9 @@
 {
   "name": "config-cache",
   "description": "General purpose JavaScript object storage methods.",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "homepage": "https://github.com/jonschlinkert/config-cache",
+  "repository": "jonschlinkert/config-cache",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "maintainers": [
     {
@@ -10,10 +11,6 @@
       "username": "doowb"
     }
   ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/jonschlinkert/config-cache.git"
-  },
   "bugs": {
     "url": "https://github.com/jonschlinkert/config-cache/issues"
   },
@@ -32,11 +29,11 @@
     "arr-flatten": "^1.0.1",
     "array-union": "^1.0.1",
     "component-emitter": "^1.2.0",
-    "extend-shallow": "^1.1.4",
+    "extend-shallow": "^2.0.1",
     "get-value": "^1.1.5",
     "kind-of": "^2.0.0",
-    "lazy-cache": "^0.1.0",
-    "object.omit": "^1.1.0",
+    "lazy-cache": "^0.2.3",
+    "object.omit": "^2.0.0",
     "set-value": "^0.2.0"
   },
   "devDependencies": {
